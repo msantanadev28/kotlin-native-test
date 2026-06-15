@@ -1,0 +1,47 @@
+# Gradle
+.gradle/
+build/
+out/
+.tools/
+
+# Kotlin/Native
+.kotlin/
+*.kexe
+*.klib
+*.klib.lock
+
+# IDEs and Editors
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Local configuration
+local.properties
+
+# Compiled Binary Formats (Dynamic/Static Libraries and Objects)
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs and Dumps
+*.log
+*.hprof
+*.dmp
+*.kcrash
+
+# OS-specific files
+Thumbs.db
+Desktop.ini
+.DS_Store
