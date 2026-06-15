@@ -15,17 +15,23 @@ repositories {
 }
 
 kotlin {
+    jvm("compiler")
+
     mingwX64("native") {
         binaries {
             executable {
-                entryPoint = "main"
-                linkerOpts.add("-mwindows")
+                entryPoint = "ui.main"
+                // linkerOpts.add("-mwindows")
             }
         }
     }
 
+    sourceSets {
+        val nativeMain by getting {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/lienzo"))
+        }
+    }
 }
-
 tasks.register("downloadSkiaRuntimePackage") {
     outputs.file(skiaPackageFile)
 
@@ -77,4 +83,27 @@ tasks.named("linkReleaseExecutableNative") {
 
 tasks.named("build") {
     dependsOn(stageSkiaRuntimeDebug)
+}
+
+val compileLienzo = tasks.register<JavaExec>("compileLienzo") {
+    dependsOn(kotlin.targets.getByName("compiler").compilations.getByName("main").compileTaskProvider)
+    mainClass.set("lienzo.compiler.CompilerKt")
+    classpath = kotlin.targets.getByName("compiler").compilations.getByName("main").output.classesDirs +
+                configurations.getByName("compilerRuntimeClasspath")
+    
+    val inputDir = file("src/ui")
+    val outputDir = layout.buildDirectory.dir("generated/lienzo")
+    
+    inputs.dir(inputDir)
+    outputs.dir(outputDir)
+    
+    args(
+        inputDir.absolutePath,
+        outputDir.get().asFile.absolutePath,
+        "ui.generated"
+    )
+}
+
+tasks.named("compileKotlinNative") {
+    dependsOn(compileLienzo)
 }

@@ -33,6 +33,7 @@ class SkiaRenderer {
     val skia = SkiaLibrary()
     private val backBuffer = BackBuffer()
     private var surface: COpaquePointer? = null
+    var rootWidget: lienzo.runtime.Widget? = null
 
     fun load() {
         skia.load()
@@ -110,23 +111,12 @@ class SkiaRenderer {
 
         skia.canvasClear(canvas, colorWhite)
 
-        val paint = skia.paintNew()
-        try {
-            skia.paintSetAntialias(paint, true)
-            skia.paintSetColor(paint, colorBlue)
-
-            val centerX = backBuffer.width / 2f
-            val centerY = backBuffer.height / 2f
-            val outerRadius = min(backBuffer.width, backBuffer.height) * 0.3f
-            val innerRadius = outerRadius * 0.45f
-
-            skia.canvasDrawCircle(canvas, centerX, centerY, outerRadius, paint)
-
-            skia.paintSetColor(paint, colorRed)
-            skia.canvasDrawCircle(canvas, centerX, centerY, innerRadius, paint)
-        } finally {
-            skia.paintDelete(paint)
-        }
+        val root = rootWidget ?: return
+        val skiaCanvas = lienzo.renderer.SkiaCanvas(skia, canvas)
+        
+        root.measure(backBuffer.width.toFloat(), backBuffer.height.toFloat())
+        root.place(0f, 0f, backBuffer.width.toFloat(), backBuffer.height.toFloat())
+        root.draw(skiaCanvas, 0f, 0f, backBuffer.width.toFloat(), backBuffer.height.toFloat())
     }
 
     private fun disposeBackBuffer() {

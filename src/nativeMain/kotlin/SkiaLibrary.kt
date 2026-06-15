@@ -19,6 +19,12 @@ class SkiaLibrary {
     lateinit var paintSetAntialias: CPointer<CFunction<(COpaquePointer?, Boolean) -> Unit>>
     lateinit var canvasClear: CPointer<CFunction<(COpaquePointer?, UInt) -> Unit>>
     lateinit var canvasDrawCircle: CPointer<CFunction<(COpaquePointer?, Float, Float, Float, COpaquePointer?) -> Unit>>
+    lateinit var canvasDrawRect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, COpaquePointer?) -> Unit>>
+    lateinit var canvasDrawRoundRect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Float, Float, COpaquePointer?) -> Unit>>
+    lateinit var canvasDrawSimpleText: CPointer<CFunction<(COpaquePointer?, kotlinx.cinterop.CPointer<kotlinx.cinterop.ByteVar>?, Long, Int, Float, Float, COpaquePointer?, COpaquePointer?) -> Unit>>
+    lateinit var fontNew: CPointer<CFunction<() -> COpaquePointer?>>
+    lateinit var fontDelete: CPointer<CFunction<(COpaquePointer?) -> Unit>>
+    lateinit var fontSetSize: CPointer<CFunction<(COpaquePointer?, Float) -> Unit>>
     lateinit var surfaceGetCanvas: CPointer<CFunction<(COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceNewRasterDirect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Long, COpaquePointer?, COpaquePointer?, COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceUnref: CPointer<CFunction<(COpaquePointer?) -> Unit>>
@@ -35,6 +41,12 @@ class SkiaLibrary {
         paintSetAntialias = loadFunction("sk_paint_set_antialias")
         canvasClear = loadFunction("sk_canvas_clear")
         canvasDrawCircle = loadFunction("sk_canvas_draw_circle")
+        canvasDrawRect = loadFunction("sk_canvas_draw_rect")
+        canvasDrawRoundRect = loadFunction("sk_canvas_draw_round_rect")
+        canvasDrawSimpleText = loadFunction("sk_canvas_draw_simple_text")
+        fontNew = loadFunction("sk_font_new")
+        fontDelete = loadFunction("sk_font_delete")
+        fontSetSize = loadFunction("sk_font_set_size")
         surfaceGetCanvas = loadFunction("sk_surface_get_canvas")
         surfaceNewRasterDirect = loadFunction("sk_surface_new_raster_direct")
         surfaceUnref = loadFunction("sk_surface_unref")

@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
@@ -49,6 +51,7 @@ private const val initialWindowWidth = 720
 private const val initialWindowHeight = 540
 
 private var activeRenderer: SkiaRenderer? = null
+private var activeWindowHandle: HWND? = null
 
 @OptIn(ExperimentalForeignApi::class)
 class Window(private val renderer: SkiaRenderer) {
@@ -87,6 +90,13 @@ class Window(private val renderer: SkiaRenderer) {
                 null,
             ) ?: error("CreateWindowExA failed with ${GetLastError()}")
 
+            activeWindowHandle = windowHandle
+
+            // Hook requestRedraw for the root widget to trigger repaint
+            lienzo.runtime.onGlobalRequestRedraw = {
+                InvalidateRect(windowHandle, null, 0)
+            }
+
             ShowWindow(windowHandle, SW_SHOWDEFAULT)
             UpdateWindow(windowHandle)
 
@@ -111,6 +121,33 @@ private fun windowProc(windowHandle: HWND?, message: UINT, wParam: WPARAM, lPara
 
         WM_PAINT -> {
             renderer.paint(windowHandle)
+            return 0
+        }
+
+        platform.windows.WM_LBUTTONDOWN -> {
+            val x = (lParam.toInt() and 0xFFFF).toFloat()
+            val y = ((lParam.toInt() ushr 16) and 0xFFFF).toFloat()
+            val root = renderer.rootWidget
+            if (root != null) {
+                val target = lienzo.runtime.hitTest(root, x, y)
+                target?.handleEvent(lienzo.runtime.UiEvent.Click(x, y))
+            }
+            return 0
+        }
+
+        platform.windows.WM_MOUSEMOVE -> {
+            val x = (lParam.toInt() and 0xFFFF).toFloat()
+            val y = ((lParam.toInt() ushr 16) and 0xFFFF).toFloat()
+            val root = renderer.rootWidget
+            if (root != null) {
+                fun dispatchMouseMove(w: lienzo.runtime.Widget, mx: Float, my: Float) {
+                    w.handleEvent(lienzo.runtime.UiEvent.MouseMove(mx, my))
+                    for (c in w.children) {
+                        dispatchMouseMove(c, mx, my)
+                    }
+                }
+                dispatchMouseMove(root, x, y)
+            }
             return 0
         }
 
