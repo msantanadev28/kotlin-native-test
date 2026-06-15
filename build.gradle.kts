@@ -21,7 +21,7 @@ kotlin {
         binaries {
             executable {
                 entryPoint = "ui.main"
-                // linkerOpts.add("-mwindows")
+                linkerOpts.add("-mwindows")
             }
         }
     }
