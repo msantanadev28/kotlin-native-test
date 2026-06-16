@@ -116,8 +116,18 @@ class Lexer(private val source: String) {
     private fun readString() {
         advance() // opening "
         val sb = StringBuilder()
-        while (pos < source.length && peek() != '"') {
-            sb.append(advance())
+        while (pos < source.length) {
+            val c = peek()
+            if (c == '\\') {
+                advance() // consume \
+                if (pos < source.length) {
+                    sb.append(advance()) // consume escaped character
+                }
+            } else if (c == '"') {
+                break
+            } else {
+                sb.append(advance())
+            }
         }
         advance() // closing "
         emit(TokenType.STRING, sb.toString())
@@ -232,6 +242,8 @@ class KotlinCodeGen(
         val args = node.attributes.entries.joinToString(", ") { (k, v) ->
             if (k == "onClick") {
                 "$k = ::$v"
+            } else if (v.startsWith("{") && v.endsWith("}")) {
+                "$k = ${v.substring(1, v.length - 1)}"
             } else {
                 val isNum = v.toIntOrNull() != null || v.toFloatOrNull() != null
                 val isBool = v == "true" || v == "false"

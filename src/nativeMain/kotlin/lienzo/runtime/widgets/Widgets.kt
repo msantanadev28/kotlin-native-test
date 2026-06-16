@@ -18,11 +18,17 @@ class WindowWidget(
         boundsW = width
         boundsH = height
 
-        for (child in children) {
-            val childSize = child.measure(width, height)
+        val spacing = 16f
+        val sizes = children.map { it.measure(width, height) }
+        val totalHeight = sizes.map { it.height }.sum() + spacing * (children.size - 1)
+        var currentY = y + (height - totalHeight) / 2f
+
+        for (i in children.indices) {
+            val child = children[i]
+            val childSize = sizes[i]
             val cx = x + (width - childSize.width) / 2f
-            val cy = y + (height - childSize.height) / 2f
-            child.place(cx, cy, childSize.width, childSize.height)
+            child.place(cx, currentY, childSize.width, childSize.height)
+            currentY += childSize.height + spacing
         }
     }
 
@@ -88,6 +94,36 @@ class ButtonWidget(
     }
 }
 
+class LabelWidget(
+    val textBinding: Binding<String>
+) : Widget() {
+    val text: String
+        get() = textBinding.read()
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        val str = text
+        val textWidth = str.length * 10f + 40f
+        val textHeight = 44f
+        return Size(textWidth, textHeight)
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        val str = text
+        val textColor = 0xFF111827u // Dark gray
+        val textWidth = str.length * 8f
+        val textX = x + (width - textWidth) / 2f
+        val textY = y + (height - 14f) / 2f + 10f
+        canvas.drawText(str, textX, textY, textColor, 16f)
+    }
+}
+
 fun window(
     title: String,
     width: Int,
@@ -106,3 +142,20 @@ fun Widget.button(
     this.addChild(b)
     return b
 }
+
+fun Widget.label(
+    text: Binding<String>
+): LabelWidget {
+    val l = LabelWidget(text)
+    this.addChild(l)
+    return l
+}
+
+fun Widget.label(
+    text: String
+): LabelWidget {
+    val l = LabelWidget(bind { text })
+    this.addChild(l)
+    return l
+}
+

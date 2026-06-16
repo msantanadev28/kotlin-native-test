@@ -1,3 +1,4 @@
 <Window title="Button App" width="400" height="300">
+    <Label text="{bind { \"Clicked ${counter.value} times\" }}"/>
     <Button text="Click Me" onClick="onButtonClick"/>
 </Window>
