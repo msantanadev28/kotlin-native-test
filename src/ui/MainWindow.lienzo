@@ -1,16 +1,71 @@
-<Window title="Button App" width="500" height="400">
-    <Column spacing="16" padding="20" align="center">
-        <Label text="{bind { \"Clicked ${counter.value} times\" }}"/>
-        <Grid columns="3" spacing="12">
-            <Card>
-                <Button text="Click Me" onClick="onButtonClick"/>
+<Window title="Settings" width="960" height="640">
+    <Row grow="1" spacing="0">
+        <!-- Sidebar Column -->
+        <Column spacing="10" padding="16" align="start" grow="1">
+            <Text value="RD28 Severino"/>
+            <Text value="rd28@hotmail.es"/>
+            <Spacer grow="1"/>
+            <Text value="Home"/>
+            <Text value="System"/>
+            <Text value="Personalization"/>
+            <Text value="Apps"/>
+            <Text value="Accounts"/>
+            <Text value="Time & language"/>
+            <Text value="Gaming"/>
+            <Text value="Privacy & security"/>
+            <Text value="Windows Update"/>
+            <Spacer grow="5"/>
+            <Text value="Win 11 Settings v23H2"/>
+        </Column>
+
+        <!-- Main Content Column -->
+        <Column spacing="16" padding="24" align="start" grow="3">
+            <Text value="Personalization"/>
+
+            <!-- Preview Banner -->
+            <Card grow="1">
+                <Row spacing="16">
+                    <Card>
+                        <Text value="Desktop Live Screen"/>
+                    </Card>
+                    <Column spacing="8" align="start">
+                        <Text value="Theme Live Simulator"/>
+                        <Text value="This preview box simulates active theme styles."/>
+                        <Row spacing="8">
+                            <Button text="Accent Color"/>
+                            <Button text="Mode: Dark"/>
+                        </Row>
+                    </Column>
+                </Row>
             </Card>
-            <Card>
-                <Button text="Reset" onClick="onResetClick"/>
+
+            <Text value="Select a theme to apply"/>
+
+            <!-- Themes Grid -->
+            <Grid columns="6" spacing="8">
+                <Card><Text value="Windows"/></Card>
+                <Card><Text value="Windows L"/></Card>
+                <Card><Text value="Glow"/></Card>
+                <Card><Text value="Sunrise"/></Card>
+                <Card><Text value="Captured"/></Card>
+                <Card><Text value="Flow"/></Card>
+            </Grid>
+
+            <!-- Bottom settings options list -->
+            <Card grow="1">
+                <Row spacing="12">
+                    <Text value="Background"/>
+                    <Spacer grow="1"/>
+                    <Button text=">"/>
+                </Row>
             </Card>
-            <Card>
-                <Button text="Click Me" onClick="onButtonClick"/>
+            <Card grow="1">
+                <Row spacing="12">
+                    <Text value="Colors"/>
+                    <Spacer grow="1"/>
+                    <Button text=">"/>
+                </Row>
             </Card>
-        </Grid>
-    </Column>
+        </Column>
+    </Row>
 </Window>

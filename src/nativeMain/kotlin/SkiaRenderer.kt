@@ -109,7 +109,7 @@ class SkiaRenderer {
         val currentSurface = surface ?: return
         val canvas = skia.surfaceGetCanvas(currentSurface) ?: return
 
-        skia.canvasClear(canvas, colorWhite)
+        skia.canvasClear(canvas, 0x00000000u) // Clear transparent for Acrylic/Mica backdrop
 
         val root = rootWidget ?: return
         val skiaCanvas = lienzo.renderer.SkiaCanvas(skia, canvas)

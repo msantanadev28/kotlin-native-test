@@ -40,7 +40,7 @@ class WindowWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
-        canvas.drawRect(x, y, width, height, 0xFFF3F4F6u) // Tailored gray-100 theme bg
+        canvas.drawRect(x, y, width, height, 0x99132250u) // Translucent gray-100 theme bg
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }

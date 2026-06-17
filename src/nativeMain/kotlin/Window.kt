@@ -92,6 +92,25 @@ class Window(private val renderer: SkiaRenderer) {
 
             activeWindowHandle = windowHandle
 
+            // Enable Windows 11 Acrylic Backdrop Effect
+            val backdropType = 3 // DWMSBT_TRANSIENTWINDOW (Acrylic)
+            val backdropAlloc = alloc<platform.windows.DWORDVar>()
+            backdropAlloc.value = backdropType.toUInt()
+            platform.windows.DwmSetWindowAttribute(
+                windowHandle,
+                38u, // DWMWA_SYSTEMBACKDROP_TYPE
+                backdropAlloc.ptr,
+                sizeOf<platform.windows.DWORDVar>().toUInt()
+            )
+
+            // Extend DWM frame into client area to render backdrop across window background
+            val margins = alloc<platform.windows.MARGINS>()
+            margins.cxLeftWidth = -1
+            margins.cxRightWidth = -1
+            margins.cyTopHeight = -1
+            margins.cyBottomHeight = -1
+            platform.windows.DwmExtendFrameIntoClientArea(windowHandle, margins.ptr)
+
             // Hook requestRedraw for the root widget to trigger repaint
             lienzo.runtime.onGlobalRequestRedraw = {
                 InvalidateRect(windowHandle, null, 0)
