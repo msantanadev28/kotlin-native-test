@@ -315,13 +315,54 @@ Displays a repeated template for each item in a collection.
 
 ---
 
-## Tree
+## TreeView
 
-Displays hierarchical data as a tree structure.
+Displays hierarchical data as an interactive tree structure. Supports selection, multi-selection (including checkbox-based selection with tri-state support), icons, and node expansion/collapse.
+
+### Visual Variations
+
+| Multi-selection Enabled | Icon Support Enabled |
+| --- | --- |
+| ![TreeView with Multi-selection enabled](treeview.png) | ![TreeView with Icon support enabled](treeview-icons.png) |
+
+### Example Usage
 
 ```html
-<Tree items="{folders}"/>
+<TreeView
+    items="{documents}"
+    showCheckboxes="true"
+    showIcons="true"
+    selectionMode="multiple"
+    onSelectionChange="handleSelection">
+
+    <!-- Optional custom template for rendering individual nodes -->
+    <Template>
+        <Text value="{item.name}"/>
+    </Template>
+
+</TreeView>
 ```
+
+### Properties
+
+| Property          | Type       | Default    | Description                                                   |
+| ----------------- | ---------- | ---------- | ------------------------------------------------------------- |
+| items             | Collection | -          | Bound collection of hierarchical nodes                        |
+| showCheckboxes    | Boolean    | `false`    | Whether to show selection checkboxes next to items            |
+| showIcons         | Boolean    | `false`    | Whether to show icons next to node labels                     |
+| selectionMode     | String     | `"single"` | Selection mode: `"none"`, `"single"`, or `"multiple"`         |
+| onSelectionChange | Method     | -          | Event handler triggered when the selection changes            |
+| onNodeExpand      | Method     | -          | Event handler triggered when a node is expanded               |
+| onNodeCollapse    | Method     | -          | Event handler triggered when a node is collapsed              |
+
+### TreeView Node Item Structure
+
+The bound hierarchical collection is expected to expose the following fields on each node:
+* `name`: String display label.
+* `icon`: String name/path of the icon to display next to the node label (optional).
+* `children`: Collection of sub-nodes (optional).
+* `isExpanded`: Boolean control for node expansion.
+* `isSelected`: Boolean or tri-state state for selection (useful for multi-selection).
 
 ---
 
