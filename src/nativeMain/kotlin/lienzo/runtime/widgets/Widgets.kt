@@ -549,4 +549,61 @@ fun Widget.spacer(
     return w
 }
 
+class CardWidget(grow: Int = 0) : Widget() {
+    init {
+        this.grow = grow
+    }
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        val padding = 16f
+        var maxW = 0f
+        var maxH = 0f
+        for (child in children) {
+            val size = child.measure(maxWidth - 2 * padding, maxHeight - 2 * padding)
+            maxW = maxOf(maxW, size.width)
+            maxH = maxOf(maxH, size.height)
+        }
+        return Size(maxW + 2 * padding, maxH + 2 * padding)
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+        val padding = 16f
+        for (child in children) {
+            child.place(x + padding, y + padding, width - 2 * padding, height - 2 * padding)
+        }
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        canvas.drawRoundRect(x, y, width, height, 12f, 0xFFFFFFFFu)
+        for (child in children) {
+            child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
+        }
+    }
+}
+
+fun Widget.card(
+    grow: Int = 0,
+    block: CardWidget.() -> Unit = {}
+): CardWidget {
+    val w = CardWidget(grow)
+    this.addChild(w)
+    w.block()
+    return w
+}
+
+fun Widget.text(
+    value: String,
+    grow: Int = 0
+): LabelWidget = label(text = value, grow = grow)
+
+fun Widget.text(
+    value: Binding<String>,
+    grow: Int = 0
+): LabelWidget = label(text = value, grow = grow)
+
+
 

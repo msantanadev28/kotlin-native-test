@@ -1,9 +1,16 @@
-<Window title="Button App" width="400" height="300">
+<Window title="Button App" width="500" height="400">
     <Column spacing="16" padding="20" align="center">
         <Label text="{bind { \"Clicked ${counter.value} times\" }}"/>
-        <Row spacing="12">
-            <Button text="Click Me" onClick="onButtonClick"/>
-            <Button text="Reset" onClick="onResetClick"/>
-        </Row>
+        <Grid columns="3" spacing="12">
+            <Card>
+                <Button text="Click Me" onClick="onButtonClick"/>
+            </Card>
+            <Card>
+                <Button text="Reset" onClick="onResetClick"/>
+            </Card>
+            <Card>
+                <Button text="Click Me" onClick="onButtonClick"/>
+            </Card>
+        </Grid>
     </Column>
 </Window>

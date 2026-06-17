@@ -73,23 +73,44 @@ Every UI starts with a `Window`.
 
 ## Window Attributes
 
-| Property  | Type    | Description           |
-| --------- | ------- | --------------------- |
-| title     | String  | Window title          |
-| width     | Number  | Window width in px    |
-| height    | Number  | Window height in px   |
-| minWidth  | Number  | Minimum width in px   |
-| minHeight | Number  | Minimum height in px  |
-| theme     | String  | Theme name            |
-| resizable | Boolean | Allow resizing        |
+| Property    | Type    | Description                                                 |
+| ----------- | ------- | ----------------------------------------------------------- |
+| title       | String  | Window title                                                |
+| width       | Number  | Window width in px                                          |
+| height      | Number  | Window height in px                                         |
+| minWidth    | Number  | Minimum width in px                                         |
+| minHeight   | Number  | Minimum height in px                                        |
+| theme       | String  | Theme name                                                  |
+| resizable   | Boolean | Allow resizing                                              |
+| backdrop    | String  | Backdrop effect: `"none"`, `"mica"`, `"acrylic"`, `"tabbed"` |
+| translucent | Boolean | Enable window opacity transparency/blend                    |
 
 ```html
 <Window
     title="Dashboard"
     width="1400"
     height="900"
+    backdrop="acrylic"
+    translucent="true"
     theme="dark"/>
 ```
+
+### Windows 11 Backdrop Effects (Mica & Acrylic)
+
+To render modern Windows 11 materials like Mica and Acrylic, the native backend must hook into the Desktop Window Manager (DWM) attributes:
+
+1. **Win32 Layered Window Style**:
+   The window must be created or updated using `SetWindowLongPtr` to include `WS_EX_LAYERED` in its extended window style flags.
+
+2. **DWM System Backdrop Attribute**:
+   The window handles must invoke `DwmSetWindowAttribute` passing the `DWMWA_SYSTEMBACKDROP_TYPE` attribute ID (value `38`) with one of the following DWM backdrop type integers:
+   - `DWMSBT_DISABLE` (1) for `"none"`
+   - `DWMSBT_MAINWINDOW` (2) for `"mica"`
+   - `DWMSBT_TRANSIENTWINDOW` (3) for `"acrylic"`
+   - `DWMSBT_TABBEDWINDOW` (4) for `"tabbed"` (Mica Alt)
+
+3. **Skia Render Context**:
+   The Skia renderer's clear function must clear the canvas with a transparent color (e.g. `0x00000000u`) instead of drawing solid white or solid gray, enabling the DWM system blur backdrop to show through.
 
 ---
 
@@ -161,6 +182,8 @@ Places components on top of each other (z-axis stacking).
 ## Grid
 
 Creates advanced grid-based layouts with row and column definitions, spacing, and cell assignment using attached properties on child elements.
+
+![Grid Layout Control](grid.png)
 
 ```html
 <Grid
