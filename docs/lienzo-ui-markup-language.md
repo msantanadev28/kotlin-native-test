@@ -160,27 +160,44 @@ Places components on top of each other (z-axis stacking).
 
 ## Grid
 
-Creates grid-based layouts.
+Creates advanced grid-based layouts with row and column definitions, spacing, and cell assignment using attached properties on child elements.
 
 ```html
 <Grid
-    columns="3"
-    spacing="16">
+    Width="240"
+    Height="120"
+    Background="Gray"
+    ColumnDefinitions="50, 50, 50"
+    RowDefinitions="50, 50, 50"
+    ColumnSpacing="16"
+    RowSpacing="0">
 
-    <Card/>
-    <Card/>
-    <Card/>
+    <Rectangle Fill="Red" Grid.Column="2" Grid.Row="1" />
+    <Rectangle Fill="Blue" Grid.Row="1" />
+    <Rectangle Fill="Green" Grid.Column="1" />
+    <Rectangle Fill="Yellow" Grid.Column="1" Grid.Row="1" />
 
 </Grid>
 ```
 
-### Properties
+### Grid Properties
 
-| Property | Type   | Description               |
-| -------- | ------ | ------------------------- |
-| columns  | Number | Number of columns         |
-| rows     | Number | Number of rows (optional) |
-| spacing  | Number | Gap between cells in px   |
+| Property | Type | Description |
+| --- | --- | --- |
+| ColumnDefinitions | String | Comma-separated list of widths for each column (e.g., `"50, 50, 50"` or `"Auto, *, 2*"`). |
+| RowDefinitions | String | Comma-separated list of heights for each row (e.g., `"50, 50, 50"` or `"Auto, *, 2*"`). |
+| ColumnSpacing | Number | Horizontal gap between columns in px. |
+| RowSpacing | Number | Vertical gap between rows in px. |
+| Background | String/Color | Background color of the grid. |
+
+### Child / Attached Properties
+
+These properties are specified on direct children of a `<Grid>` to define their cell position:
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| Grid.Column | Number | `0` | The column index (0-indexed) where the element should be placed. |
+| Grid.Row | Number | `0` | The row index (0-indexed) where the element should be placed. |
 
 ---
 

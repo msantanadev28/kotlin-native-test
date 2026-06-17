@@ -12,6 +12,11 @@ fun onButtonClick() {
     println("Button clicked! Counter value: ${counter.value}")
 }
 
+fun onResetClick() {
+    counter.value = 0
+    println("Counter reset!")
+}
+
 fun main() {
     val renderer = SkiaRenderer()
     renderer.load()

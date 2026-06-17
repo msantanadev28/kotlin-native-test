@@ -46,6 +46,7 @@ abstract class Widget {
     var boundsY = 0f
     var boundsW = 0f
     var boundsH = 0f
+    var grow = 0
 
     abstract fun measure(maxWidth: Float, maxHeight: Float): Size
     abstract fun place(x: Float, y: Float, width: Float, height: Float)
