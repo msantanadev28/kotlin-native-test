@@ -125,7 +125,7 @@ class Window(private val renderer: SkiaRenderer) {
                 0u,
                 windowClassName,
                 windowTitle,
-                (WS_OVERLAPPEDWINDOW or WS_VISIBLE).toUInt(),
+                WS_OVERLAPPEDWINDOW.toUInt(),
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
                 initialWindowWidth,
