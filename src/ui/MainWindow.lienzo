@@ -1,4 +1,4 @@
-<Window title="Button App" width="500" height="400">
+<Window title="Button App" width="500" height="400" theme="mica">
     <Column spacing="16" padding="20" align="center">
         <Label text="{bind { \"Clicked ${counter.value} times\" }}"/>
         <Grid columns="3" spacing="12">

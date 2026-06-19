@@ -5,7 +5,8 @@ import lienzo.runtime.*
 class WindowWidget(
     val title: String,
     val width: Int,
-    val height: Int
+    val height: Int,
+    val theme: String = ""
 ) : Widget() {
 
     override fun measure(maxWidth: Float, maxHeight: Float): Size {
@@ -40,7 +41,9 @@ class WindowWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
-        canvas.drawRect(x, y, width, height, 0xFFF3F4F6u) // Tailored gray-100 theme bg
+        if (theme != "mica") {
+            canvas.drawRect(x, y, width, height, 0xFFF3F4F6u) // Tailored gray-100 theme bg
+        }
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
@@ -135,9 +138,10 @@ fun window(
     title: String,
     width: Int,
     height: Int,
+    theme: String = "",
     block: WindowWidget.() -> Unit = {}
 ): WindowWidget {
-    return WindowWidget(title, width, height).apply(block)
+    return WindowWidget(title, width, height, theme).apply(block)
 }
 
 fun Widget.button(

@@ -109,9 +109,11 @@ class SkiaRenderer {
         val currentSurface = surface ?: return
         val canvas = skia.surfaceGetCanvas(currentSurface) ?: return
 
-        skia.canvasClear(canvas, colorWhite)
-
         val root = rootWidget ?: return
+        val isMica = (root as? lienzo.runtime.widgets.WindowWidget)?.theme == "mica"
+        val clearColor = if (isMica) 0u else colorWhite
+        skia.canvasClear(canvas, clearColor)
+
         val skiaCanvas = lienzo.renderer.SkiaCanvas(skia, canvas)
         
         root.measure(backBuffer.width.toFloat(), backBuffer.height.toFloat())
