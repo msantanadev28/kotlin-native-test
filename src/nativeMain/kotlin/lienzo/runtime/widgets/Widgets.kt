@@ -117,14 +117,20 @@ class ButtonWidget(
     val cornerRadius: Int = 8,
     val backgroundColor: String = "",
     val borderColor: String = "",
-    val borderThickness: Int = 0
+    val borderThickness: Int = 0,
+    val fontSize: Int = 16,
+    val fontFamily: String = "",
+    val fontColor: String = "",
+    val fontShadowColor: String = "",
+    val fontShadowOffset: Int = 0
 ) : Widget() {
 
     var isHovered = false
 
     override fun measure(maxWidth: Float, maxHeight: Float): Size {
-        val textWidth = text.length * 10f + 40f
-        val textHeight = 44f
+        val size = fontSize.toFloat()
+        val textWidth = text.length * (size * 0.6f) + 40f
+        val textHeight = size * 1.4f + 20f
         return Size(textWidth, textHeight)
     }
 
@@ -153,11 +159,13 @@ class ButtonWidget(
             canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bg)
         }
 
-        val textColor = 0xFFFFFFFFu
-        val textWidth = text.length * 8f
+        val baseTextColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
+        val sColor = if (fontShadowColor.isNotEmpty()) parseColor(fontShadowColor) else 0u
+        val size = fontSize.toFloat()
+        val textWidth = text.length * (size * 0.5f)
         val textX = x + (width - textWidth) / 2f
-        val textY = y + (height - 14f) / 2f + 10f
-        canvas.drawText(text, textX, textY, textColor, 16f)
+        val textY = y + (height - size) / 2f + (size * 0.7f)
+        canvas.drawText(text, textX, textY, baseTextColor, size, fontFamily, sColor, fontShadowOffset.toFloat())
     }
 
     override fun handleEvent(event: UiEvent) {
@@ -234,9 +242,27 @@ fun Widget.button(
     cornerRadius: Int = 8,
     backgroundColor: String = "",
     borderColor: String = "",
-    borderThickness: Int = 0
+    borderThickness: Int = 0,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    fontShadowColor: String = "",
+    fontShadowOffset: Int = 0
 ): ButtonWidget {
-    val b = ButtonWidget(text, onClick, enabled, cornerRadius, backgroundColor, borderColor, borderThickness).apply { this.grow = grow }
+    val b = ButtonWidget(
+        text = text,
+        onClick = onClick,
+        enabled = enabled,
+        cornerRadius = cornerRadius,
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        borderThickness = borderThickness,
+        fontSize = fontSize,
+        fontFamily = fontFamily,
+        fontColor = fontColor,
+        fontShadowColor = fontShadowColor,
+        fontShadowOffset = fontShadowOffset
+    ).apply { this.grow = grow }
     this.addChild(b)
     return b
 }

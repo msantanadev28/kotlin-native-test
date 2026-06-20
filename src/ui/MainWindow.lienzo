@@ -6,7 +6,7 @@
                 <Button text="Click Me" onClick="onButtonClick"/>
             </Card>
             <Card>
-                <Button text="Reset" onClick="onResetClick"/>
+                <Button  text="Reset" onClick="onResetClick"/>
             </Card>
             <Card>
                 <Button text="Click Me" onClick="onButtonClick"/>

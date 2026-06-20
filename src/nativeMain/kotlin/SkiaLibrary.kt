@@ -26,7 +26,7 @@ class SkiaLibrary {
     lateinit var fontDelete: CPointer<CFunction<(COpaquePointer?) -> Unit>>
     lateinit var fontSetSize: CPointer<CFunction<(COpaquePointer?, Float) -> Unit>>
     lateinit var fontSetTypeface: CPointer<CFunction<(COpaquePointer?, COpaquePointer?) -> Unit>>
-    lateinit var typefaceCreateFromName: CPointer<CFunction<(kotlinx.cinterop.CPointer<kotlinx.cinterop.ByteVar>?, Int) -> COpaquePointer?>>
+    lateinit var typefaceCreateFromName: CPointer<CFunction<(kotlinx.cinterop.CPointer<kotlinx.cinterop.ByteVar>?, COpaquePointer?) -> COpaquePointer?>>
     lateinit var typefaceUnref: CPointer<CFunction<(COpaquePointer?) -> Unit>>
     lateinit var surfaceGetCanvas: CPointer<CFunction<(COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceNewRasterDirect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Long, COpaquePointer?, COpaquePointer?, COpaquePointer?) -> COpaquePointer?>>

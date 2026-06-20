@@ -117,7 +117,8 @@ class Window(private val renderer: SkiaRenderer) {
             windowClassDefinition.hbrBackground = null
             windowClassDefinition.lpszClassName = windowClassNamePointer
 
-            check(RegisterClassExA(windowClassDefinition.ptr) != 0.toUShort()) {
+            val regResult = RegisterClassExA(windowClassDefinition.ptr)
+            check(regResult != 0.toUShort()) {
                 "RegisterClassExA failed with ${GetLastError()}"
             }
 
@@ -134,7 +135,10 @@ class Window(private val renderer: SkiaRenderer) {
                 null,
                 instance,
                 null,
-            ) ?: error("CreateWindowExA failed with ${GetLastError()}")
+            )
+            if (windowHandle == null) {
+                error("CreateWindowExA failed with ${GetLastError()}")
+            }
 
             activeWindowHandle = windowHandle
 

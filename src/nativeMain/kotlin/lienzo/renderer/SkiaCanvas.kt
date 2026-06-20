@@ -64,7 +64,11 @@ class SkiaCanvas(
 
             if (fontFamily.isNotEmpty()) {
                 val familyNamePtr = fontFamily.cstr
-                val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr.getPointer(this), 0)
+                val fontStyle = allocArray<IntVar>(3)
+                fontStyle[0] = 400 // weight
+                fontStyle[1] = 5   // width
+                fontStyle[2] = 0   // slant
+                val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr.getPointer(this), fontStyle)
                 if (typeface != null) {
                     skia.fontSetTypeface.invoke(font, typeface)
                     skia.typefaceUnref.invoke(typeface)

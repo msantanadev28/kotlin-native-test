@@ -15,10 +15,18 @@ This guide describes how the Lienzo UI framework compiles `.lienzo` markup templ
 
 The project is structured as a Kotlin Multiplatform build compiling a JVM target for the compiler and a Native target for the UI runtime.
 
-To clean, download dependencies, compile the code generator, compile the native code, and link everything:
+To clean, download dependencies, compile the code generator, compile the native code, and build a target, you can use the target-specific scripts:
 
 ```powershell
-# Restore/update wrapper (if required) and run the build
+# Build the native debug executable (places dll & exe in build\bin\native\debugExecutable)
+.\gradlew-debug.bat
+
+# Build the native release executable (places dll & exe in build\bin\native\releaseExecutable)
+.\gradlew-release.bat
+```
+
+Alternatively, you can build both targets:
+```powershell
 .\gradlew.bat build
 ```
 
