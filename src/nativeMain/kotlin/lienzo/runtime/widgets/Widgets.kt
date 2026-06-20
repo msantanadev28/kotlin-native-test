@@ -122,7 +122,8 @@ class ButtonWidget(
     val fontFamily: String = "",
     val fontColor: String = "",
     val fontShadowColor: String = "",
-    val fontShadowOffset: Int = 0
+    val fontShadowOffset: Int = 0,
+    val hoverColor: String = ""
 ) : Widget() {
 
     var isHovered = false
@@ -142,12 +143,18 @@ class ButtonWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
-        val defaultBgColor = when {
+        val bg = when {
             !enabled -> 0xFFD1D5DBu // Gray-300
-            isHovered -> 0xFF1D4ED8u // Blue-700
-            else -> 0xFF2563EBu // Blue-600
+            isHovered -> {
+                if (hoverColor.isNotEmpty()) parseColor(hoverColor)
+                else if (backgroundColor.isNotEmpty()) parseColor(backgroundColor)
+                else 0xFF1D4ED8u // Blue-700
+            }
+            else -> {
+                if (backgroundColor.isNotEmpty()) parseColor(backgroundColor)
+                else 0xFF2563EBu // Blue-600
+            }
         }
-        val bg = if (backgroundColor.isNotEmpty()) parseColor(backgroundColor) else defaultBgColor
 
         if (borderColor.isNotEmpty() && borderThickness > 0) {
             val bColor = parseColor(borderColor)
@@ -247,7 +254,8 @@ fun Widget.button(
     fontFamily: String = "",
     fontColor: String = "",
     fontShadowColor: String = "",
-    fontShadowOffset: Int = 0
+    fontShadowOffset: Int = 0,
+    hoverColor: String = ""
 ): ButtonWidget {
     val b = ButtonWidget(
         text = text,
@@ -261,7 +269,8 @@ fun Widget.button(
         fontFamily = fontFamily,
         fontColor = fontColor,
         fontShadowColor = fontShadowColor,
-        fontShadowOffset = fontShadowOffset
+        fontShadowOffset = fontShadowOffset,
+        hoverColor = hoverColor
     ).apply { this.grow = grow }
     this.addChild(b)
     return b

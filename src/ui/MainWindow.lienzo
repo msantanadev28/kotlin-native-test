@@ -6,7 +6,7 @@
                 <Button text="Click Me" onClick="onButtonClick"/>
             </Card>
             <Card>
-                <Button  text="Reset" onClick="onResetClick"/>
+                <Button backgroundColor="#181a1f" hoverColor="#059669" fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
             </Card>
             <Card>
                 <Button text="Click Me" onClick="onButtonClick"/>

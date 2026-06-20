@@ -229,6 +229,7 @@ Clickable action trigger. Renders a rounded background panel that highlights on 
     *   `grow` (Int): Specifies the layout flex-ratio. Default is `0`.
     *   `cornerRadius` (Int): Sets the rounding radius in pixels for button corners. Default is `8`.
     *   `backgroundColor` (String): Fills the button background. If set, overrides the state-based default background.
+    *   `hoverColor` (String): Background color when the button is hovered. Overrides the default hover color.
     *   `borderColor` (String): Outlining border color. Default is `""` (no border).
     *   `borderThickness` (Int): Width in pixels of the border stroke. Requires `borderColor`. Default is `0`.
     *   `fontSize` (Int): The text size in points. Default is `16`.
@@ -238,7 +239,7 @@ Clickable action trigger. Renders a rounded background panel that highlights on 
     *   `fontShadowOffset` (Int): Shadow displacement in pixels. Default is `0`.
 *   **Example:**
     ```xml
-    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" borderColor="#047857" borderThickness="2" fontSize="18" fontFamily="Arial" fontColor="#FFFFFF" fontShadowColor="#064E3B" fontShadowOffset="2"/>
+    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" hoverColor="#059669" borderColor="#047857" borderThickness="2" fontSize="18" fontFamily="Arial" fontColor="#FFFFFF" fontShadowColor="#064E3B" fontShadowOffset="2"/>
     ```
 
 #### 3. `<Spacer>`
