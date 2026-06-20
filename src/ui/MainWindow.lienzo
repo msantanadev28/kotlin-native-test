@@ -1,3 +1,16 @@
-<Window title="Button App" width="400" height="300">
-    <Button text="Click Me" onClick="onButtonClick"/>
+<Window title="Button App" width="500" height="400" theme="mica">
+    <Column spacing="16" padding="20" align="center">
+        <Label fontColor="#cccccc" fontWeight="700" text="{bind { \"Clicked ${counter.value} times\" }}"/>
+        <FlexBox direction="row" wrap="true" justifyContent="space-between" alignItems="center" spacing="8" padding="10" grow="1">
+            <Card marginTop="20">
+                <Button text="Click Me" onClick="onButtonClick"/>
+            </Card>
+            <Card marginTop="40">
+                <Button backgroundColor="#181a1f" hoverColor="#059669"/ fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
+            </Card>
+            <Card marginTop="60">
+                <Button text="Click Me" onClick="onButtonClick"/>
+            </Card>
+        </FlexBox>
+    </Column>
 </Window>

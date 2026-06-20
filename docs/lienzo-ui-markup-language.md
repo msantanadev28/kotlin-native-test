@@ -73,23 +73,44 @@ Every UI starts with a `Window`.
 
 ## Window Attributes
 
-| Property  | Type    | Description           |
-| --------- | ------- | --------------------- |
-| title     | String  | Window title          |
-| width     | Number  | Window width in px    |
-| height    | Number  | Window height in px   |
-| minWidth  | Number  | Minimum width in px   |
-| minHeight | Number  | Minimum height in px  |
-| theme     | String  | Theme name            |
-| resizable | Boolean | Allow resizing        |
+| Property    | Type    | Description                                                 |
+| ----------- | ------- | ----------------------------------------------------------- |
+| title       | String  | Window title                                                |
+| width       | Number  | Window width in px                                          |
+| height      | Number  | Window height in px                                         |
+| minWidth    | Number  | Minimum width in px                                         |
+| minHeight   | Number  | Minimum height in px                                        |
+| theme       | String  | Theme name                                                  |
+| resizable   | Boolean | Allow resizing                                              |
+| backdrop    | String  | Backdrop effect: `"none"`, `"mica"`, `"acrylic"`, `"tabbed"` |
+| translucent | Boolean | Enable window opacity transparency/blend                    |
 
 ```html
 <Window
     title="Dashboard"
     width="1400"
     height="900"
+    backdrop="acrylic"
+    translucent="true"
     theme="dark"/>
 ```
+
+### Windows 11 Backdrop Effects (Mica & Acrylic)
+
+To render modern Windows 11 materials like Mica and Acrylic, the native backend must hook into the Desktop Window Manager (DWM) attributes:
+
+1. **Win32 Layered Window Style**:
+   The window must be created or updated using `SetWindowLongPtr` to include `WS_EX_LAYERED` in its extended window style flags.
+
+2. **DWM System Backdrop Attribute**:
+   The window handles must invoke `DwmSetWindowAttribute` passing the `DWMWA_SYSTEMBACKDROP_TYPE` attribute ID (value `38`) with one of the following DWM backdrop type integers:
+   - `DWMSBT_DISABLE` (1) for `"none"`
+   - `DWMSBT_MAINWINDOW` (2) for `"mica"`
+   - `DWMSBT_TRANSIENTWINDOW` (3) for `"acrylic"`
+   - `DWMSBT_TABBEDWINDOW` (4) for `"tabbed"` (Mica Alt)
+
+3. **Skia Render Context**:
+   The Skia renderer's clear function must clear the canvas with a transparent color (e.g. `0x00000000u`) instead of drawing solid white or solid gray, enabling the DWM system blur backdrop to show through.
 
 ---
 
@@ -160,27 +181,46 @@ Places components on top of each other (z-axis stacking).
 
 ## Grid
 
-Creates grid-based layouts.
+Creates advanced grid-based layouts with row and column definitions, spacing, and cell assignment using attached properties on child elements.
+
+![Grid Layout Control](grid.png)
 
 ```html
 <Grid
-    columns="3"
-    spacing="16">
+    Width="240"
+    Height="120"
+    Background="Gray"
+    ColumnDefinitions="50, 50, 50"
+    RowDefinitions="50, 50, 50"
+    ColumnSpacing="16"
+    RowSpacing="0">
 
-    <Card/>
-    <Card/>
-    <Card/>
+    <Rectangle Fill="Red" Grid.Column="2" Grid.Row="1" />
+    <Rectangle Fill="Blue" Grid.Row="1" />
+    <Rectangle Fill="Green" Grid.Column="1" />
+    <Rectangle Fill="Yellow" Grid.Column="1" Grid.Row="1" />
 
 </Grid>
 ```
 
-### Properties
+### Grid Properties
 
-| Property | Type   | Description               |
-| -------- | ------ | ------------------------- |
-| columns  | Number | Number of columns         |
-| rows     | Number | Number of rows (optional) |
-| spacing  | Number | Gap between cells in px   |
+| Property | Type | Description |
+| --- | --- | --- |
+| ColumnDefinitions | String | Comma-separated list of widths for each column (e.g., `"50, 50, 50"` or `"Auto, *, 2*"`). |
+| RowDefinitions | String | Comma-separated list of heights for each row (e.g., `"50, 50, 50"` or `"Auto, *, 2*"`). |
+| ColumnSpacing | Number | Horizontal gap between columns in px. |
+| RowSpacing | Number | Vertical gap between rows in px. |
+| Background | String/Color | Background color of the grid. |
+
+### Child / Attached Properties
+
+These properties are specified on direct children of a `<Grid>` to define their cell position:
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| Grid.Column | Number | `0` | The column index (0-indexed) where the element should be placed. |
+| Grid.Row | Number | `0` | The row index (0-indexed) where the element should be placed. |
 
 ---
 
@@ -315,13 +355,54 @@ Displays a repeated template for each item in a collection.
 
 ---
 
-## Tree
+## TreeView
 
-Displays hierarchical data as a tree structure.
+Displays hierarchical data as an interactive tree structure. Supports selection, multi-selection (including checkbox-based selection with tri-state support), icons, and node expansion/collapse.
+
+### Visual Variations
+
+| Multi-selection Enabled | Icon Support Enabled |
+| --- | --- |
+| ![TreeView with Multi-selection enabled](treeview.png) | ![TreeView with Icon support enabled](treeview-icons.png) |
+
+### Example Usage
 
 ```html
-<Tree items="{folders}"/>
+<TreeView
+    items="{documents}"
+    showCheckboxes="true"
+    showIcons="true"
+    selectionMode="multiple"
+    onSelectionChange="handleSelection">
+
+    <!-- Optional custom template for rendering individual nodes -->
+    <Template>
+        <Text value="{item.name}"/>
+    </Template>
+
+</TreeView>
 ```
+
+### Properties
+
+| Property          | Type       | Default    | Description                                                   |
+| ----------------- | ---------- | ---------- | ------------------------------------------------------------- |
+| items             | Collection | -          | Bound collection of hierarchical nodes                        |
+| showCheckboxes    | Boolean    | `false`    | Whether to show selection checkboxes next to items            |
+| showIcons         | Boolean    | `false`    | Whether to show icons next to node labels                     |
+| selectionMode     | String     | `"single"` | Selection mode: `"none"`, `"single"`, or `"multiple"`         |
+| onSelectionChange | Method     | -          | Event handler triggered when the selection changes            |
+| onNodeExpand      | Method     | -          | Event handler triggered when a node is expanded               |
+| onNodeCollapse    | Method     | -          | Event handler triggered when a node is collapsed              |
+
+### TreeView Node Item Structure
+
+The bound hierarchical collection is expected to expose the following fields on each node:
+* `name`: String display label.
+* `icon`: String name/path of the icon to display next to the node label (optional).
+* `children`: Collection of sub-nodes (optional).
+* `isExpanded`: Boolean control for node expansion.
+* `isSelected`: Boolean or tri-state state for selection (useful for multi-selection).
 
 ---
 

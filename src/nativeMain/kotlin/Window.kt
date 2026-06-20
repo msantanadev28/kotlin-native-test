@@ -1,18 +1,6 @@
 @file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 
-import kotlinx.cinterop.CFunction
-import kotlinx.cinterop.COpaquePointer
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.cstr
-import kotlinx.cinterop.invoke
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.sizeOf
-import kotlinx.cinterop.staticCFunction
-import kotlinx.cinterop.value
+import kotlinx.cinterop.*
 import platform.windows.CS_HREDRAW
 import platform.windows.CS_VREDRAW
 import platform.windows.CW_USEDEFAULT
@@ -44,6 +32,11 @@ import platform.windows.WNDCLASSEXA
 import platform.windows.WPARAM
 import platform.windows.WS_OVERLAPPEDWINDOW
 import platform.windows.WS_VISIBLE
+import platform.windows.*
+
+private const val DWMWA_SYSTEMBACKDROP_TYPE = 38u
+private const val DWMSBT_MAINWINDOW = 2
+private const val DWMWA_USE_IMMERSIVE_DARK_MODE = 20u
 
 private const val windowClassName = "SkiaCircleSampleWindow"
 private const val windowTitle = "Kotlin Native Skia Sample"
@@ -52,6 +45,59 @@ private const val initialWindowHeight = 540
 
 private var activeRenderer: SkiaRenderer? = null
 private var activeWindowHandle: HWND? = null
+
+@OptIn(ExperimentalForeignApi::class)
+private fun isDarkModeActive(): Boolean = memScoped {
+    val keyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+    val valueName = "AppsUseLightTheme"
+    val hKey = alloc<HKEYVar>()
+    val value = alloc<UIntVar>()
+    value.value = 1u
+    val size = alloc<UIntVar>()
+    size.value = sizeOf<UIntVar>().convert()
+
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, keyPath, 0u, KEY_READ.toUInt(), hKey.ptr) == ERROR_SUCCESS) {
+        RegQueryValueExW(
+            hKey.value,
+            valueName,
+            null,
+            null,
+            value.ptr.reinterpret(),
+            size.ptr
+        )
+        RegCloseKey(hKey.value)
+    }
+
+    value.value == 0u
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun setBackdrop(hwnd: HWND?) = memScoped {
+    val backdrop = alloc<IntVar>()
+    backdrop.value = DWMSBT_MAINWINDOW
+    DwmSetWindowAttribute(
+        hwnd,
+        DWMWA_SYSTEMBACKDROP_TYPE,
+        backdrop.ptr,
+        sizeOf<IntVar>().convert()
+    )
+
+    val dark = alloc<BOOLVar>()
+    dark.value = if (isDarkModeActive()) 1 else 0
+    DwmSetWindowAttribute(
+        hwnd,
+        DWMWA_USE_IMMERSIVE_DARK_MODE,
+        dark.ptr,
+        sizeOf<BOOLVar>().convert()
+    )
+
+    val margins = alloc<MARGINS>()
+    margins.cxLeftWidth = -1
+    margins.cxRightWidth = -1
+    margins.cyTopHeight = -1
+    margins.cyBottomHeight = -1
+    DwmExtendFrameIntoClientArea(hwnd, margins.ptr)
+}
 
 @OptIn(ExperimentalForeignApi::class)
 class Window(private val renderer: SkiaRenderer) {
@@ -71,7 +117,8 @@ class Window(private val renderer: SkiaRenderer) {
             windowClassDefinition.hbrBackground = null
             windowClassDefinition.lpszClassName = windowClassNamePointer
 
-            check(RegisterClassExA(windowClassDefinition.ptr) != 0.toUShort()) {
+            val regResult = RegisterClassExA(windowClassDefinition.ptr)
+            check(regResult != 0.toUShort()) {
                 "RegisterClassExA failed with ${GetLastError()}"
             }
 
@@ -79,7 +126,7 @@ class Window(private val renderer: SkiaRenderer) {
                 0u,
                 windowClassName,
                 windowTitle,
-                (WS_OVERLAPPEDWINDOW or WS_VISIBLE).toUInt(),
+                WS_OVERLAPPEDWINDOW.toUInt(),
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
                 initialWindowWidth,
@@ -88,13 +135,21 @@ class Window(private val renderer: SkiaRenderer) {
                 null,
                 instance,
                 null,
-            ) ?: error("CreateWindowExA failed with ${GetLastError()}")
+            )
+            if (windowHandle == null) {
+                error("CreateWindowExA failed with ${GetLastError()}")
+            }
 
             activeWindowHandle = windowHandle
 
             // Hook requestRedraw for the root widget to trigger repaint
             lienzo.runtime.onGlobalRequestRedraw = {
                 InvalidateRect(windowHandle, null, 0)
+            }
+
+            val root = renderer.rootWidget as? lienzo.runtime.widgets.WindowWidget
+            if (root?.theme == "mica") {
+                setBackdrop(windowHandle)
             }
 
             ShowWindow(windowHandle, SW_SHOWDEFAULT)
@@ -113,6 +168,29 @@ class Window(private val renderer: SkiaRenderer) {
 private fun windowProc(windowHandle: HWND?, message: UINT, wParam: WPARAM, lParam: LPARAM): LRESULT {
     val renderer = activeRenderer ?: return DefWindowProcA(windowHandle, message, wParam, lParam)
     when (message.toInt()) {
+        platform.windows.WM_ERASEBKGND -> {
+            return 1
+        }
+
+        platform.windows.WM_SETTINGCHANGE -> {
+            val root = renderer.rootWidget as? lienzo.runtime.widgets.WindowWidget
+            if (root?.theme == "mica") {
+                val dark = if (isDarkModeActive()) 1 else 0
+                memScoped {
+                    val value = alloc<BOOLVar>()
+                    value.value = dark
+                    DwmSetWindowAttribute(
+                        windowHandle,
+                        DWMWA_USE_IMMERSIVE_DARK_MODE,
+                        value.ptr,
+                        sizeOf<BOOLVar>().convert()
+                    )
+                }
+                InvalidateRect(windowHandle, null, 1)
+            }
+            return 0
+        }
+
         WM_SIZE -> {
             renderer.resize(windowHandle)
             InvalidateRect(windowHandle, null, 0)

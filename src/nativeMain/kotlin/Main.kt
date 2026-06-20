@@ -3,9 +3,18 @@ package ui
 
 import SkiaRenderer
 import Window
+import lienzo.runtime.state
+
+val counter = state(0)
 
 fun onButtonClick() {
-    println("Button was clicked! Lienzo UI works successfully!")
+    counter.value++
+    println("Button clicked! Counter value: ${counter.value}")
+}
+
+fun onResetClick() {
+    counter.value = 0
+    println("Counter reset!")
 }
 
 fun main() {
@@ -16,6 +25,11 @@ fun main() {
     val rootWidget = ui.generated.MainWindow()
     renderer.rootWidget = rootWidget
 
+    counter.observe {
+        rootWidget.invalidate()
+    }
+
     val window = Window(renderer)
     window.run()
 }
+
