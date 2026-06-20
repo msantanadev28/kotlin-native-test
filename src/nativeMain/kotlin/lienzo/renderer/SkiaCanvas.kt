@@ -53,7 +53,8 @@ class SkiaCanvas(
         size: Float,
         fontFamily: String,
         shadowColor: UInt,
-        shadowOffset: Float
+        shadowOffset: Float,
+        fontWeight: Int
     ) {
         memScoped {
             val paint = skia.paintNew.invoke()
@@ -62,17 +63,15 @@ class SkiaCanvas(
             val font = skia.fontNew.invoke()
             skia.fontSetSize.invoke(font, size)
 
-            if (fontFamily.isNotEmpty()) {
-                val familyNamePtr = fontFamily.cstr
-                val fontStyle = allocArray<IntVar>(3)
-                fontStyle[0] = 400 // weight
-                fontStyle[1] = 5   // width
-                fontStyle[2] = 0   // slant
-                val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr.getPointer(this), fontStyle)
-                if (typeface != null) {
-                    skia.fontSetTypeface.invoke(font, typeface)
-                    skia.typefaceUnref.invoke(typeface)
-                }
+            val familyNamePtr = if (fontFamily.isNotEmpty()) fontFamily.cstr.getPointer(this) else null
+            val fontStyle = allocArray<IntVar>(3)
+            fontStyle[0] = fontWeight // weight
+            fontStyle[1] = 5   // width
+            fontStyle[2] = 0   // slant
+            val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr, fontStyle)
+            if (typeface != null) {
+                skia.fontSetTypeface.invoke(font, typeface)
+                skia.typefaceUnref.invoke(typeface)
             }
 
             val bytes = text.cstr

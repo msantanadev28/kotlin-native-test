@@ -1,12 +1,12 @@
 <Window title="Button App" width="500" height="400" theme="mica">
     <Column spacing="16" padding="20" align="center">
-        <Label text="{bind { \"Clicked ${counter.value} times\" }}"/>
+        <Label fontColor="#cccccc" fontWeight="700" text="{bind { \"Clicked ${counter.value} times\" }}"/>
         <FlexBox direction="row" wrap="true" justifyContent="space-between" alignItems="center" spacing="8" padding="10" grow="1">
             <Card>
                 <Button text="Click Me" onClick="onButtonClick"/>
             </Card>
             <Card>
-                <Button backgroundColor="#181a1f" hoverColor="#059669" fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
+                <Button backgroundColor="#181a1f" hoverColor="#059669"/ fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
             </Card>
             <Card>
                 <Button text="Click Me" onClick="onButtonClick"/>

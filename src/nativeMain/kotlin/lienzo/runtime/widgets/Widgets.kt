@@ -123,7 +123,8 @@ class ButtonWidget(
     val fontColor: String = "",
     val fontShadowColor: String = "",
     val fontShadowOffset: Int = 0,
-    val hoverColor: String = ""
+    val hoverColor: String = "",
+    val fontWeight: Int = 400
 ) : Widget() {
 
     var isHovered = false
@@ -172,7 +173,7 @@ class ButtonWidget(
         val textWidth = text.length * (size * 0.5f)
         val textX = x + (width - textWidth) / 2f
         val textY = y + (height - size) / 2f + (size * 0.7f)
-        canvas.drawText(text, textX, textY, baseTextColor, size, fontFamily, sColor, fontShadowOffset.toFloat())
+        canvas.drawText(text, textX, textY, baseTextColor, size, fontFamily, sColor, fontShadowOffset.toFloat(), fontWeight)
     }
 
     override fun handleEvent(event: UiEvent) {
@@ -199,7 +200,8 @@ class LabelWidget(
     val fontFamily: String = "",
     val fontColor: String = "",
     val fontShadowColor: String = "",
-    val fontShadowOffset: Int = 0
+    val fontShadowOffset: Int = 0,
+    val fontWeight: Int = 400
 ) : Widget() {
     val text: String
         get() = textBinding.read()
@@ -227,7 +229,7 @@ class LabelWidget(
         val textWidth = str.length * (size * 0.5f)
         val textX = x + (width - textWidth) / 2f
         val textY = y + (height - size) / 2f + (size * 0.8f)
-        canvas.drawText(str, textX, textY, baseColor, size, fontFamily, sColor, fontShadowOffset.toFloat())
+        canvas.drawText(str, textX, textY, baseColor, size, fontFamily, sColor, fontShadowOffset.toFloat(), fontWeight)
     }
 }
 
@@ -255,7 +257,8 @@ fun Widget.button(
     fontColor: String = "",
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
-    hoverColor: String = ""
+    hoverColor: String = "",
+    fontWeight: Int = 400
 ): ButtonWidget {
     val b = ButtonWidget(
         text = text,
@@ -270,7 +273,8 @@ fun Widget.button(
         fontColor = fontColor,
         fontShadowColor = fontShadowColor,
         fontShadowOffset = fontShadowOffset,
-        hoverColor = hoverColor
+        hoverColor = hoverColor,
+        fontWeight = fontWeight
     ).apply { this.grow = grow }
     this.addChild(b)
     return b
@@ -283,9 +287,10 @@ fun Widget.label(
     fontFamily: String = "",
     fontColor: String = "",
     fontShadowColor: String = "",
-    fontShadowOffset: Int = 0
+    fontShadowOffset: Int = 0,
+    fontWeight: Int = 400
 ): LabelWidget {
-    val l = LabelWidget(text, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset).apply { this.grow = grow }
+    val l = LabelWidget(text, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { this.grow = grow }
     this.addChild(l)
     return l
 }
@@ -297,9 +302,10 @@ fun Widget.label(
     fontFamily: String = "",
     fontColor: String = "",
     fontShadowColor: String = "",
-    fontShadowOffset: Int = 0
+    fontShadowOffset: Int = 0,
+    fontWeight: Int = 400
 ): LabelWidget {
-    val l = LabelWidget(bind { text }, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset).apply { this.grow = grow }
+    val l = LabelWidget(bind { text }, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { this.grow = grow }
     this.addChild(l)
     return l
 }
@@ -1069,8 +1075,9 @@ fun Widget.text(
     fontFamily: String = "",
     fontColor: String = "",
     fontShadowColor: String = "",
-    fontShadowOffset: Int = 0
-): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset)
+    fontShadowOffset: Int = 0,
+    fontWeight: Int = 400
+): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset, fontWeight = fontWeight)
 
 fun Widget.text(
     value: Binding<String>,
@@ -1079,8 +1086,9 @@ fun Widget.text(
     fontFamily: String = "",
     fontColor: String = "",
     fontShadowColor: String = "",
-    fontShadowOffset: Int = 0
-): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset)
+    fontShadowOffset: Int = 0,
+    fontWeight: Int = 400
+): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset, fontWeight = fontWeight)
 
 class ImageWidget(
     val source: String,

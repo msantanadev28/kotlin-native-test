@@ -215,9 +215,10 @@ Renders textual data. Can display raw static strings or evaluate reactive bindin
     *   `fontColor` (String): Text color hex code (e.g. `"#FF0000"`). Default is Dark Gray `"#111827"`.
     *   `fontShadowColor` (String): The drop shadow color. Default is `""` (no shadow).
     *   `fontShadowOffset` (Int): Drop shadow displacement distance in pixels. Requires `fontShadowColor`. Default is `0`.
+    *   `fontWeight` (Int): Weight of the typeface (e.g., `400` for normal, `700` for bold). Default is `400`.
 *   **Example:**
     ```xml
-    <Label text="Header Title" fontSize="24" fontFamily="Consolas" fontColor="#1D4ED8" fontShadowColor="#93C5FD" fontShadowOffset="3"/>
+    <Label text="Header Title" fontSize="24" fontFamily="Consolas" fontWeight="700" fontColor="#1D4ED8" fontShadowColor="#93C5FD" fontShadowOffset="3"/>
     ```
 
 #### 2. `<Button>`
@@ -237,9 +238,10 @@ Clickable action trigger. Renders a rounded background panel that highlights on 
     *   `fontColor` (String): Text label color override. Default is White `"#FFFFFF"`.
     *   `fontShadowColor` (String): The label drop shadow color. Default is `""`.
     *   `fontShadowOffset` (Int): Shadow displacement in pixels. Default is `0`.
+    *   `fontWeight` (Int): Weight of the typeface (e.g., `400` for normal, `700` for bold). Default is `400`.
 *   **Example:**
     ```xml
-    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" hoverColor="#059669" borderColor="#047857" borderThickness="2" fontSize="18" fontFamily="Arial" fontColor="#FFFFFF" fontShadowColor="#064E3B" fontShadowOffset="2"/>
+    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" hoverColor="#059669" borderColor="#047857" borderThickness="2" fontSize="18" fontFamily="Arial" fontWeight="700" fontColor="#FFFFFF" fontShadowColor="#064E3B" fontShadowOffset="2"/>
     ```
 
 #### 3. `<Spacer>`

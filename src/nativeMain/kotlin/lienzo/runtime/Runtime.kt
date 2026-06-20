@@ -33,7 +33,8 @@ interface DrawCanvas {
         size: Float,
         fontFamily: String = "",
         shadowColor: UInt = 0u,
-        shadowOffset: Float = 0f
+        shadowOffset: Float = 0f,
+        fontWeight: Int = 400
     )
     fun drawRoundRect(x: Float, y: Float, w: Float, h: Float, radius: Float, color: UInt)
 }
