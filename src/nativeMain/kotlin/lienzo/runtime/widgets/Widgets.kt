@@ -2,6 +2,66 @@ package lienzo.runtime.widgets
 
 import lienzo.runtime.*
 
+fun parseColor(colorStr: String): UInt {
+    if (colorStr.isEmpty()) return 0u
+    val clean = colorStr.trim()
+    if (clean.startsWith("0x") || clean.startsWith("0X")) {
+        val hex = clean.substring(2).removeSuffix("u").removeSuffix("U")
+        return hex.toLong(16).toUInt()
+    }
+    if (clean.startsWith("#")) {
+        val hex = clean.substring(1)
+        if (hex.length == 6) {
+            return ("FF" + hex).toLong(16).toUInt()
+        }
+        return hex.toLong(16).toUInt()
+    }
+    return clean.toUIntOrNull() ?: 0u
+}
+
+fun drawBackgroundAndBorder(
+    canvas: DrawCanvas,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    cornerRadius: Int,
+    backgroundColor: String,
+    borderColor: String,
+    borderThickness: Int
+) {
+    val hasBg = backgroundColor.isNotEmpty()
+    val hasBorder = borderColor.isNotEmpty() && borderThickness > 0
+
+    if (hasBorder) {
+        val bColor = parseColor(borderColor)
+        if (cornerRadius > 0) {
+            canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bColor)
+        } else {
+            canvas.drawRect(x, y, width, height, bColor)
+        }
+
+        val bgStr = if (hasBg) backgroundColor else "0xFFFFFFFF"
+        val bgColor = parseColor(bgStr)
+        val t = borderThickness.toFloat()
+        val innerRadius = maxOf(0f, cornerRadius.toFloat() - t)
+
+        if (innerRadius > 0f) {
+            canvas.drawRoundRect(x + t, y + t, width - 2 * t, height - 2 * t, innerRadius, bgColor)
+        } else {
+            canvas.drawRect(x + t, y + t, width - 2 * t, height - 2 * t, bgColor)
+        }
+    } else if (hasBg) {
+        val bg = parseColor(backgroundColor)
+        if (cornerRadius > 0) {
+            canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bg)
+        } else {
+            canvas.drawRect(x, y, width, height, bg)
+        }
+    }
+}
+
+
 class WindowWidget(
     val title: String,
     val width: Int,
@@ -53,7 +113,11 @@ class WindowWidget(
 class ButtonWidget(
     val text: String,
     val onClick: (() -> Unit)? = null,
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
+    val cornerRadius: Int = 8,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
 ) : Widget() {
 
     var isHovered = false
@@ -72,12 +136,22 @@ class ButtonWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
-        val bgColor = when {
+        val defaultBgColor = when {
             !enabled -> 0xFFD1D5DBu // Gray-300
             isHovered -> 0xFF1D4ED8u // Blue-700
             else -> 0xFF2563EBu // Blue-600
         }
-        canvas.drawRoundRect(x, y, width, height, 8f, bgColor)
+        val bg = if (backgroundColor.isNotEmpty()) parseColor(backgroundColor) else defaultBgColor
+
+        if (borderColor.isNotEmpty() && borderThickness > 0) {
+            val bColor = parseColor(borderColor)
+            canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bColor)
+            val t = borderThickness.toFloat()
+            val innerRadius = maxOf(0f, cornerRadius.toFloat() - t)
+            canvas.drawRoundRect(x + t, y + t, width - 2 * t, height - 2 * t, innerRadius, bg)
+        } else {
+            canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bg)
+        }
 
         val textColor = 0xFFFFFFFFu
         val textWidth = text.length * 8f
@@ -148,9 +222,13 @@ fun Widget.button(
     text: String,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
-    grow: Int = 0
+    grow: Int = 0,
+    cornerRadius: Int = 8,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0
 ): ButtonWidget {
-    val b = ButtonWidget(text, onClick, enabled).apply { this.grow = grow }
+    val b = ButtonWidget(text, onClick, enabled, cornerRadius, backgroundColor, borderColor, borderThickness).apply { this.grow = grow }
     this.addChild(b)
     return b
 }
@@ -177,7 +255,11 @@ class ColumnWidget(
     val spacing: Int = 0,
     val padding: Int = 0,
     val align: String = "start",
-    grow: Int = 0
+    grow: Int = 0,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
 ) : Widget() {
     init {
         this.grow = grow
@@ -265,6 +347,7 @@ class ColumnWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
@@ -275,7 +358,11 @@ class RowWidget(
     val spacing: Int = 0,
     val padding: Int = 0,
     val align: String = "start",
-    grow: Int = 0
+    grow: Int = 0,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
 ) : Widget() {
     init {
         this.grow = grow
@@ -363,13 +450,20 @@ class RowWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
     }
 }
 
-class StackWidget(grow: Int = 0) : Widget() {
+class StackWidget(
+    grow: Int = 0,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
+) : Widget() {
     init {
         this.grow = grow
     }
@@ -396,6 +490,7 @@ class StackWidget(grow: Int = 0) : Widget() {
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
@@ -406,7 +501,11 @@ class GridWidget(
     val columns: Int = 1,
     val rows: Int = 0,
     val spacing: Int = 0,
-    grow: Int = 0
+    grow: Int = 0,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
 ) : Widget() {
     init {
         this.grow = grow
@@ -472,6 +571,7 @@ class GridWidget(
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
@@ -496,14 +596,302 @@ class SpacerWidget(grow: Int = 1) : Widget() {
     }
 }
 
+class FlexBoxWidget(
+    val direction: String = "row",
+    val wrap: Boolean = false,
+    val justifyContent: String = "flex-start",
+    val alignItems: String = "flex-start",
+    val spacing: Int = 0,
+    val padding: Int = 0,
+    grow: Int = 0,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0
+) : Widget() {
+    init {
+        this.grow = grow
+    }
+
+    private data class FlexLine(
+        val children: List<Widget>,
+        val sizes: List<Size>,
+        val totalGrow: Int,
+        val mainSize: Float,
+        val crossSize: Float
+    )
+
+    private fun calculateLines(innerMaxWidth: Float, innerMaxHeight: Float): List<FlexLine> {
+        val lines = mutableListOf<FlexLine>()
+        var currentLineChildren = mutableListOf<Widget>()
+        var currentLineSizes = mutableListOf<Size>()
+        var currentLineMainSize = 0f
+        var currentLineMaxCrossSize = 0f
+        var currentLineTotalGrow = 0
+
+        for (child in children) {
+            val size = child.measure(innerMaxWidth, innerMaxHeight)
+            val spacingCost = if (currentLineChildren.isNotEmpty()) spacing.toFloat() else 0f
+
+            if (direction == "row") {
+                if (wrap && currentLineChildren.isNotEmpty() && currentLineMainSize + spacingCost + size.width > innerMaxWidth) {
+                    lines.add(
+                        FlexLine(
+                            currentLineChildren.toList(),
+                            currentLineSizes.toList(),
+                            currentLineTotalGrow,
+                            currentLineMainSize,
+                            currentLineMaxCrossSize
+                        )
+                    )
+                    currentLineChildren = mutableListOf()
+                    currentLineSizes = mutableListOf()
+                    currentLineMainSize = 0f
+                    currentLineMaxCrossSize = 0f
+                    currentLineTotalGrow = 0
+                }
+                currentLineChildren.add(child)
+                currentLineSizes.add(size)
+                currentLineMainSize += (if (currentLineChildren.size > 1) spacing.toFloat() else 0f) + size.width
+                currentLineMaxCrossSize = maxOf(currentLineMaxCrossSize, size.height)
+                currentLineTotalGrow += child.grow
+            } else {
+                if (wrap && currentLineChildren.isNotEmpty() && currentLineMainSize + spacingCost + size.height > innerMaxHeight) {
+                    lines.add(
+                        FlexLine(
+                            currentLineChildren.toList(),
+                            currentLineSizes.toList(),
+                            currentLineTotalGrow,
+                            currentLineMainSize,
+                            currentLineMaxCrossSize
+                        )
+                    )
+                    currentLineChildren = mutableListOf()
+                    currentLineSizes = mutableListOf()
+                    currentLineMainSize = 0f
+                    currentLineMaxCrossSize = 0f
+                    currentLineTotalGrow = 0
+                }
+                currentLineChildren.add(child)
+                currentLineSizes.add(size)
+                currentLineMainSize += (if (currentLineChildren.size > 1) spacing.toFloat() else 0f) + size.height
+                currentLineMaxCrossSize = maxOf(currentLineMaxCrossSize, size.width)
+                currentLineTotalGrow += child.grow
+            }
+        }
+        if (currentLineChildren.isNotEmpty()) {
+            lines.add(
+                FlexLine(
+                    currentLineChildren.toList(),
+                    currentLineSizes.toList(),
+                    currentLineTotalGrow,
+                    currentLineMainSize,
+                    currentLineMaxCrossSize
+                )
+            )
+        }
+        return lines
+    }
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        val innerMaxWidth = maxOf(0f, maxWidth - 2 * padding.toFloat())
+        val innerMaxHeight = maxOf(0f, maxHeight - 2 * padding.toFloat())
+
+        val lines = calculateLines(innerMaxWidth, innerMaxHeight)
+
+        if (direction == "row") {
+            val contentWidth = lines.map { it.mainSize }.maxOrNull() ?: 0f
+            val contentHeight = lines.map { it.crossSize }.sum() + if (lines.size > 1) (lines.size - 1) * spacing.toFloat() else 0f
+            return Size(contentWidth + 2 * padding.toFloat(), contentHeight + 2 * padding.toFloat())
+        } else {
+            val contentHeight = lines.map { it.mainSize }.maxOrNull() ?: 0f
+            val contentWidth = lines.map { it.crossSize }.sum() + if (lines.size > 1) (lines.size - 1) * spacing.toFloat() else 0f
+            return Size(contentWidth + 2 * padding.toFloat(), contentHeight + 2 * padding.toFloat())
+        }
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+
+        val innerWidth = maxOf(0f, width - 2 * padding.toFloat())
+        val innerHeight = maxOf(0f, height - 2 * padding.toFloat())
+
+        val lines = calculateLines(innerWidth, innerHeight)
+
+        if (direction == "row") {
+            var currentY = y + padding.toFloat()
+            for (line in lines) {
+                val totalChildrenWidth = line.sizes.map { it.width }.sum()
+                val rawLineMainSize = totalChildrenWidth + if (line.children.size > 1) (line.children.size - 1) * spacing.toFloat() else 0f
+                val extraSpace = maxOf(0f, innerWidth - rawLineMainSize)
+
+                val itemWidths = FloatArray(line.children.size)
+                for (i in line.children.indices) {
+                    val child = line.children[i]
+                    val baseWidth = line.sizes[i].width
+                    itemWidths[i] = if (line.totalGrow > 0 && child.grow > 0) {
+                        baseWidth + (child.grow.toFloat() / line.totalGrow) * extraSpace
+                    } else {
+                        baseWidth
+                    }
+                }
+
+                val lineMainSizeWithGrow = itemWidths.sum() + if (line.children.size > 1) (line.children.size - 1) * spacing.toFloat() else 0f
+                val remainingExtraSpace = maxOf(0f, innerWidth - lineMainSizeWithGrow)
+
+                var currentX = x + padding.toFloat()
+                var gap = spacing.toFloat()
+
+                when (justifyContent) {
+                    "flex-end" -> {
+                        currentX += remainingExtraSpace
+                    }
+                    "center" -> {
+                        currentX += remainingExtraSpace / 2f
+                    }
+                    "space-between" -> {
+                        if (line.children.size > 1) {
+                            gap = spacing.toFloat() + remainingExtraSpace / (line.children.size - 1)
+                        }
+                    }
+                    "space-around" -> {
+                        if (line.children.size > 0) {
+                            gap = spacing.toFloat() + remainingExtraSpace / line.children.size
+                            currentX += gap / 2f
+                        }
+                    }
+                }
+
+                for (i in line.children.indices) {
+                    val child = line.children[i]
+                    val childWidth = itemWidths[i]
+                    val childHeight = if (alignItems == "stretch") {
+                        line.crossSize
+                    } else {
+                        minOf(line.crossSize, line.sizes[i].height)
+                    }
+
+                    val childY = when (alignItems) {
+                        "center" -> currentY + (line.crossSize - childHeight) / 2f
+                        "flex-end" -> currentY + (line.crossSize - childHeight)
+                        else -> currentY
+                    }
+
+                    child.place(currentX, childY, childWidth, childHeight)
+                    currentX += childWidth + gap
+                }
+                currentY += line.crossSize + spacing.toFloat()
+            }
+        } else {
+            var currentX = x + padding.toFloat()
+            for (line in lines) {
+                val totalChildrenHeight = line.sizes.map { it.height }.sum()
+                val rawLineMainSize = totalChildrenHeight + if (line.children.size > 1) (line.children.size - 1) * spacing.toFloat() else 0f
+                val extraSpace = maxOf(0f, innerHeight - rawLineMainSize)
+
+                val itemHeights = FloatArray(line.children.size)
+                for (i in line.children.indices) {
+                    val child = line.children[i]
+                    val baseHeight = line.sizes[i].height
+                    itemHeights[i] = if (line.totalGrow > 0 && child.grow > 0) {
+                        baseHeight + (child.grow.toFloat() / line.totalGrow) * extraSpace
+                    } else {
+                        baseHeight
+                    }
+                }
+
+                val lineMainSizeWithGrow = itemHeights.sum() + if (line.children.size > 1) (line.children.size - 1) * spacing.toFloat() else 0f
+                val remainingExtraSpace = maxOf(0f, innerHeight - lineMainSizeWithGrow)
+
+                var currentY = y + padding.toFloat()
+                var gap = spacing.toFloat()
+
+                when (justifyContent) {
+                    "flex-end" -> {
+                        currentY += remainingExtraSpace
+                    }
+                    "center" -> {
+                        currentY += remainingExtraSpace / 2f
+                    }
+                    "space-between" -> {
+                        if (line.children.size > 1) {
+                            gap = spacing.toFloat() + remainingExtraSpace / (line.children.size - 1)
+                        }
+                    }
+                    "space-around" -> {
+                        if (line.children.size > 0) {
+                            gap = spacing.toFloat() + remainingExtraSpace / line.children.size
+                            currentY += gap / 2f
+                        }
+                    }
+                }
+
+                for (i in line.children.indices) {
+                    val child = line.children[i]
+                    val childHeight = itemHeights[i]
+                    val childWidth = if (alignItems == "stretch") {
+                        line.crossSize
+                    } else {
+                        minOf(line.crossSize, line.sizes[i].width)
+                    }
+
+                    val childX = when (alignItems) {
+                        "center" -> currentX + (line.crossSize - childWidth) / 2f
+                        "flex-end" -> currentX + (line.crossSize - childWidth)
+                        else -> currentX
+                    }
+
+                    child.place(childX, currentY, childWidth, childHeight)
+                    currentY += childHeight + gap
+                }
+                currentX += line.crossSize + spacing.toFloat()
+            }
+        }
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
+        for (child in children) {
+            child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
+        }
+    }
+}
+
+fun Widget.flexBox(
+    direction: String = "row",
+    wrap: Boolean = false,
+    justifyContent: String = "flex-start",
+    alignItems: String = "flex-start",
+    spacing: Int = 0,
+    padding: Int = 0,
+    grow: Int = 0,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
+    block: FlexBoxWidget.() -> Unit = {}
+): FlexBoxWidget {
+    val w = FlexBoxWidget(direction, wrap, justifyContent, alignItems, spacing, padding, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    this.addChild(w)
+    w.block()
+    return w
+}
+
 fun Widget.column(
     spacing: Int = 0,
     padding: Int = 0,
     align: String = "start",
     grow: Int = 0,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
     block: ColumnWidget.() -> Unit = {}
 ): ColumnWidget {
-    val w = ColumnWidget(spacing, padding, align, grow)
+    val w = ColumnWidget(spacing, padding, align, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
     this.addChild(w)
     w.block()
     return w
@@ -514,9 +902,13 @@ fun Widget.row(
     padding: Int = 0,
     align: String = "start",
     grow: Int = 0,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
     block: RowWidget.() -> Unit = {}
 ): RowWidget {
-    val w = RowWidget(spacing, padding, align, grow)
+    val w = RowWidget(spacing, padding, align, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
     this.addChild(w)
     w.block()
     return w
@@ -524,9 +916,13 @@ fun Widget.row(
 
 fun Widget.stack(
     grow: Int = 0,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
     block: StackWidget.() -> Unit = {}
 ): StackWidget {
-    val w = StackWidget(grow)
+    val w = StackWidget(grow, cornerRadius, backgroundColor, borderColor, borderThickness)
     this.addChild(w)
     w.block()
     return w
@@ -537,9 +933,13 @@ fun Widget.grid(
     rows: Int = 0,
     spacing: Int = 0,
     grow: Int = 0,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
     block: GridWidget.() -> Unit = {}
 ): GridWidget {
-    val w = GridWidget(columns, rows, spacing, grow)
+    val w = GridWidget(columns, rows, spacing, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
     this.addChild(w)
     w.block()
     return w
@@ -553,7 +953,13 @@ fun Widget.spacer(
     return w
 }
 
-class CardWidget(grow: Int = 0) : Widget() {
+class CardWidget(
+    val cornerRadius: Int = 12,
+    val backgroundColor: String = "",
+    grow: Int = 0,
+    val borderColor: String = "",
+    val borderThickness: Int = 0
+) : Widget() {
     init {
         this.grow = grow
     }
@@ -582,7 +988,7 @@ class CardWidget(grow: Int = 0) : Widget() {
     }
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
-        canvas.drawRoundRect(x, y, width, height, 12f, 0xFFFFFFFFu)
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
         for (child in children) {
             child.draw(canvas, child.boundsX, child.boundsY, child.boundsW, child.boundsH)
         }
@@ -591,9 +997,13 @@ class CardWidget(grow: Int = 0) : Widget() {
 
 fun Widget.card(
     grow: Int = 0,
+    cornerRadius: Int = 12,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
     block: CardWidget.() -> Unit = {}
 ): CardWidget {
-    val w = CardWidget(grow)
+    val w = CardWidget(cornerRadius, backgroundColor, grow, borderColor, borderThickness)
     this.addChild(w)
     w.block()
     return w

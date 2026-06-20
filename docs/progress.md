@@ -39,6 +39,7 @@ Below is the status of the milestones outlined in the [Implementation Guide](fil
 * **Layouts:**
   * `Column`: Vertical layouts, spacing, alignment constraints (start, center, end).
   * `Row`: Horizontal layout implementation using similar layout mechanics.
+  * `FlexBox`: Flexible unidirectional layout supporting wrap, grow, justification presets, cross-axis alignment, spacing, and padding.
   * `Grid`: Distributes elements into rows/columns with margins and cells calculations.
   * `Stack`: Overlays elements directly.
   * `Spacer` & `Card`: Layout control, spacing adjustments, and rounded container backgrounds.
