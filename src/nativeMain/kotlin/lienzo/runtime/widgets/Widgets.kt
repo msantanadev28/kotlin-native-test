@@ -1047,5 +1047,168 @@ fun Widget.text(
     fontShadowOffset: Int = 0
 ): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset)
 
+class ImageWidget(
+    val source: String,
+    val width: Int = 100,
+    val height: Int = 100,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "#E5E7EB",
+    val borderColor: String = "",
+    val borderThickness: Int = 0,
+    val shadowColor: String = "",
+    val shadowOffset: Int = 0,
+    grow: Int = 0
+) : Widget() {
+    init {
+        this.grow = grow
+    }
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        return Size(width.toFloat(), height.toFloat())
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        if (shadowColor.isNotEmpty() && shadowOffset > 0) {
+            val sColor = parseColor(shadowColor)
+            val off = shadowOffset.toFloat()
+            if (cornerRadius > 0) {
+                canvas.drawRoundRect(x + off, y + off, width, height, cornerRadius.toFloat(), sColor)
+            } else {
+                canvas.drawRect(x + off, y + off, width, height, sColor)
+            }
+        }
+
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
+
+        val pad = borderThickness.toFloat() + 8f
+        val ix = x + pad
+        val iy = y + pad
+        val iw = maxOf(0f, width - 2 * pad)
+        val ih = maxOf(0f, height - 2 * pad)
+
+        if (iw > 20f && ih > 20f) {
+            val sunRadius = minOf(iw, ih) * 0.15f
+            val sunX = ix + iw * 0.7f
+            val sunY = iy + ih * 0.3f
+            canvas.drawRoundRect(sunX - sunRadius, sunY - sunRadius, sunRadius * 2, sunRadius * 2, sunRadius, 0xFFFBBF24u)
+
+            val mountColor1 = 0xFF9CA3AFu
+            val mountColor2 = 0xFF6B7280u
+
+            val m1w = iw * 0.6f
+            val m1h = ih * 0.5f
+            canvas.drawRoundRect(ix, iy + ih - m1h, m1w, m1h, 8f, mountColor1)
+
+            val m2w = iw * 0.5f
+            val m2h = ih * 0.4f
+            canvas.drawRoundRect(ix + iw * 0.4f, iy + ih - m2h, m2w, m2h, 8f, mountColor2)
+
+            val labelText = source.substringAfterLast('/').substringAfterLast('\\')
+            if (iw > 60f && ih > 40f) {
+                val fontSize = minOf(12f, ih * 0.15f)
+                canvas.drawText(labelText, ix + 4f, iy + ih - 6f, 0xFF374151u, fontSize)
+            }
+        }
+    }
+}
+
+class SvgWidget(
+    val path: String = "",
+    val width: Int = 100,
+    val height: Int = 100,
+    val cornerRadius: Int = 0,
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = 0,
+    val shadowColor: String = "",
+    val shadowOffset: Int = 0,
+    grow: Int = 0
+) : Widget() {
+    init {
+        this.grow = grow
+    }
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        return Size(width.toFloat(), height.toFloat())
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        if (shadowColor.isNotEmpty() && shadowOffset > 0) {
+            val sColor = parseColor(shadowColor)
+            val off = shadowOffset.toFloat()
+            if (cornerRadius > 0) {
+                canvas.drawRoundRect(x + off, y + off, width, height, cornerRadius.toFloat(), sColor)
+            } else {
+                canvas.drawRect(x + off, y + off, width, height, sColor)
+            }
+        }
+
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, backgroundColor, borderColor, borderThickness)
+
+        val pad = borderThickness.toFloat() + 8f
+        val ix = x + pad
+        val iy = y + pad
+        val iw = maxOf(0f, width - 2 * pad)
+        val ih = maxOf(0f, height - 2 * pad)
+
+        if (iw > 20f && ih > 20f) {
+            val circleRadius = minOf(iw, ih) * 0.2f
+            canvas.drawRoundRect(ix + iw * 0.3f, iy + ih * 0.3f, circleRadius * 2, circleRadius * 2, circleRadius, 0xFF3B82F6u)
+
+            canvas.drawRoundRect(ix + iw * 0.5f, iy + ih * 0.5f, iw * 0.3f, ih * 0.3f, 4f, 0xFFEF4444u)
+
+            canvas.drawRoundRect(ix + iw * 0.2f, iy + ih * 0.7f, iw * 0.6f, ih * 0.08f, 2f, 0xFF10B981u)
+        }
+    }
+}
+
+fun Widget.image(
+    source: String,
+    width: Int = 100,
+    height: Int = 100,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "#E5E7EB",
+    borderColor: String = "",
+    borderThickness: Int = 0,
+    shadowColor: String = "",
+    shadowOffset: Int = 0,
+    grow: Int = 0
+): ImageWidget {
+    val img = ImageWidget(source, width, height, cornerRadius, backgroundColor, borderColor, borderThickness, shadowColor, shadowOffset, grow)
+    this.addChild(img)
+    return img
+}
+
+fun Widget.svg(
+    path: String = "",
+    width: Int = 100,
+    height: Int = 100,
+    cornerRadius: Int = 0,
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = 0,
+    shadowColor: String = "",
+    shadowOffset: Int = 0,
+    grow: Int = 0
+): SvgWidget {
+    val s = SvgWidget(path, width, height, cornerRadius, backgroundColor, borderColor, borderThickness, shadowColor, shadowOffset, grow)
+    this.addChild(s)
+    return s
+}
+
 
 

@@ -253,6 +253,42 @@ An empty invisible layout node that acts as a spring. It stretches to fill empty
     </Row>
     ```
 
+#### 4. `<Image>`
+Renders a stylized dynamic image placeholder using vector graphics (displaying a sun and mountain landscape) with custom styling.
+*   **Properties:**
+    *   `source` (String): The file path or url reference for the image. **Required.**
+    *   `width` (Int): Calculated width in pixels. Default is `100`.
+    *   `height` (Int): Calculated height in pixels. Default is `100`.
+    *   `cornerRadius` (Int): Rounding corners in pixels. Default is `0`.
+    *   `backgroundColor` (String): Background sheet fill color. Default is Light Gray `"#E5E7EB"`.
+    *   `borderColor` (String): Outlining border color. Default is `""` (none).
+    *   `borderThickness` (Int): Width in pixels of the border outline. Default is `0`.
+    *   `shadowColor` (String): Drop shadow color. Default is `""` (none).
+    *   `shadowOffset` (Int): Drop shadow distance offset in pixels. Default is `0`.
+    *   `grow` (Int): Flex flex-ratio. Default is `0`.
+*   **Example:**
+    ```xml
+    <Image source="assets/profile.png" width="120" height="120" cornerRadius="10" borderColor="#D1D5DB" borderThickness="1" shadowColor="#9CA3AF" shadowOffset="4"/>
+    ```
+
+#### 5. `<Svg>`
+Renders a vector graphic layout panel showing simple abstract geometric shapes with support for scaling and outlines.
+*   **Properties:**
+    *   `path` (String): Custom vector path string data. Default is `""`.
+    *   `width` (Int): Panel width in pixels. Default is `100`.
+    *   `height` (Int): Panel height in pixels. Default is `100`.
+    *   `cornerRadius` (Int): Rounding corners in pixels. Default is `0`.
+    *   `backgroundColor` (String): Panel background fill color. Default is `""` (transparent).
+    *   `borderColor` (String): Outlining border color. Default is `""` (none).
+    *   `borderThickness` (Int): Width in pixels of the border outline. Default is `0`.
+    *   `shadowColor` (String): Drop shadow color. Default is `""` (none).
+    *   `shadowOffset` (Int): Drop shadow distance offset in pixels. Default is `0`.
+    *   `grow` (Int): Flex flex-ratio. Default is `0`.
+*   **Example:**
+    ```xml
+    <Svg path="M 10 10 L 90 90" width="80" height="80" cornerRadius="5" backgroundColor="#F3F4F6" borderColor="#E5E7EB" borderThickness="1"/>
+    ```
+
 ---
 
 ## 🔄 State Reactivity & Property Bindings

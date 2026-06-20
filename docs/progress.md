@@ -46,6 +46,8 @@ Below is the status of the milestones outlined in the [Implementation Guide](fil
 * **Controls:**
   * `Button`: Supports click event dispatch, mouse hover detection, and customized state-driven backgrounds.
   * `Label`: Simple string display linked to runtime reactive values.
+  * `Image`: Dynamic placeholder representing pictures with border, shadow, and corner radius.
+  * `Svg`: Panel rendering geometric path representations.
 
 ---
 
