@@ -116,8 +116,8 @@ class SkiaRenderer {
 
         val skiaCanvas = lienzo.renderer.SkiaCanvas(skia, canvas)
         
-        root.measure(backBuffer.width.toFloat(), backBuffer.height.toFloat())
-        root.place(0f, 0f, backBuffer.width.toFloat(), backBuffer.height.toFloat())
+        root.measureWithMargins(backBuffer.width.toFloat(), backBuffer.height.toFloat())
+        root.placeWithMargins(0f, 0f, backBuffer.width.toFloat(), backBuffer.height.toFloat())
         root.draw(skiaCanvas, 0f, 0f, backBuffer.width.toFloat(), backBuffer.height.toFloat())
     }
 

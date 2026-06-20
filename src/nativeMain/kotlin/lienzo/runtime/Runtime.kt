@@ -58,6 +58,54 @@ abstract class Widget {
     var boundsH = 0f
     var grow = 0
 
+    var margin: Int = 0
+    var marginTop: Int = -1
+    var marginBottom: Int = -1
+    var marginLeft: Int = -1
+    var marginRight: Int = -1
+
+    val effectiveMarginTop: Float
+        get() = (if (marginTop >= 0) marginTop else margin).toFloat()
+    val effectiveMarginBottom: Float
+        get() = (if (marginBottom >= 0) marginBottom else margin).toFloat()
+    val effectiveMarginLeft: Float
+        get() = (if (marginLeft >= 0) marginLeft else margin).toFloat()
+    val effectiveMarginRight: Float
+        get() = (if (marginRight >= 0) marginRight else margin).toFloat()
+
+    fun measureWithMargins(maxWidth: Float, maxHeight: Float): Size {
+        val extraW = effectiveMarginLeft + effectiveMarginRight
+        val extraH = effectiveMarginTop + effectiveMarginBottom
+        val innerW = maxOf(0f, maxWidth - extraW)
+        val innerH = maxOf(0f, maxHeight - extraH)
+        val size = measure(innerW, innerH)
+        return Size(size.width + extraW, size.height + extraH)
+    }
+
+    fun placeWithMargins(x: Float, y: Float, width: Float, height: Float) {
+        val extraL = effectiveMarginLeft
+        val extraT = effectiveMarginTop
+        val extraR = effectiveMarginRight
+        val extraB = effectiveMarginBottom
+        place(x + extraL, y + extraT, maxOf(0f, width - extraL - extraR), maxOf(0f, height - extraT - extraB))
+    }
+
+    fun applyLayout(
+        grow: Int = 0,
+        margin: Int = 0,
+        marginTop: Int = -1,
+        marginBottom: Int = -1,
+        marginLeft: Int = -1,
+        marginRight: Int = -1
+    ) {
+        this.grow = grow
+        this.margin = margin
+        this.marginTop = marginTop
+        this.marginBottom = marginBottom
+        this.marginLeft = marginLeft
+        this.marginRight = marginRight
+    }
+
     abstract fun measure(maxWidth: Float, maxHeight: Float): Size
     abstract fun place(x: Float, y: Float, width: Float, height: Float)
     abstract fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float)

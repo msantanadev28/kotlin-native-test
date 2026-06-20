@@ -61,6 +61,17 @@ The parser distinguishes three types of values:
 
 ---
 
+### Common Layout Properties
+All visual child widgets support common layout properties to control sizing and spacing:
+*   **`grow`** (Int): Specifies the layout flex-grow ratio (relative sizing) inside layouts like `Column`, `Row`, and `FlexBox`. Default is `0` (use measured size).
+*   **`margin`** (Int): Sets outer margin space in pixels on all four sides of the widget. Default is `0`.
+*   **`marginTop`** (Int): Overrides top outer margin space in pixels. Default is `-1` (fallback to `margin`).
+*   **`marginBottom`** (Int): Overrides bottom outer margin space in pixels. Default is `-1` (fallback to `margin`).
+*   **`marginLeft`** (Int): Overrides left outer margin space in pixels. Default is `-1` (fallback to `margin`).
+*   **`marginRight`** (Int): Overrides right outer margin space in pixels. Default is `-1` (fallback to `margin`).
+
+---
+
 ### Root Window Component
 
 #### `<Window>`

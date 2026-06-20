@@ -81,13 +81,13 @@ class WindowWidget(
 
         if (children.size == 1) {
             val child = children[0]
-            val size = child.measure(width, height)
-            child.place(x, y, width, height)
+            val size = child.measureWithMargins(width.toFloat(), height.toFloat())
+            child.placeWithMargins(x, y, width.toFloat(), height.toFloat())
             return
         }
 
         val spacing = 16f
-        val sizes = children.map { it.measure(width, height) }
+        val sizes = children.map { it.measureWithMargins(width.toFloat(), height.toFloat()) }
         val totalHeight = sizes.map { it.height }.sum() + spacing * (children.size - 1)
         var currentY = y + (height - totalHeight) / 2f
 
@@ -95,7 +95,7 @@ class WindowWidget(
             val child = children[i]
             val childSize = sizes[i]
             val cx = x + (width - childSize.width) / 2f
-            child.place(cx, currentY, childSize.width, childSize.height)
+            child.placeWithMargins(cx, currentY, childSize.width, childSize.height)
             currentY += childSize.height + spacing
         }
     }
@@ -258,7 +258,12 @@ fun Widget.button(
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
     hoverColor: String = "",
-    fontWeight: Int = 400
+    fontWeight: Int = 400,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): ButtonWidget {
     val b = ButtonWidget(
         text = text,
@@ -275,7 +280,7 @@ fun Widget.button(
         fontShadowOffset = fontShadowOffset,
         hoverColor = hoverColor,
         fontWeight = fontWeight
-    ).apply { this.grow = grow }
+    ).apply { applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight) }
     this.addChild(b)
     return b
 }
@@ -288,9 +293,14 @@ fun Widget.label(
     fontColor: String = "",
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
-    fontWeight: Int = 400
+    fontWeight: Int = 400,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): LabelWidget {
-    val l = LabelWidget(text, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { this.grow = grow }
+    val l = LabelWidget(text, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight) }
     this.addChild(l)
     return l
 }
@@ -303,9 +313,14 @@ fun Widget.label(
     fontColor: String = "",
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
-    fontWeight: Int = 400
+    fontWeight: Int = 400,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): LabelWidget {
-    val l = LabelWidget(bind { text }, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { this.grow = grow }
+    val l = LabelWidget(bind { text }, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset, fontWeight).apply { applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight) }
     this.addChild(l)
     return l
 }
@@ -335,7 +350,7 @@ class ColumnWidget(
         for (child in children) {
             visibleChildCount++
             if (child.grow == 0) {
-                val size = child.measure(innerMaxWidth, innerMaxHeight)
+                val size = child.measureWithMargins(innerMaxWidth, innerMaxHeight)
                 totalHeight += size.height
                 maxChildWidth = maxOf(maxChildWidth, size.width)
             }
@@ -349,7 +364,7 @@ class ColumnWidget(
         for (child in children) {
             if (child.grow > 0) {
                 val childHeight = (child.grow.toFloat() / totalGrow) * remainingHeight
-                val size = child.measure(innerMaxWidth, childHeight)
+                val size = child.measureWithMargins(innerMaxWidth, childHeight)
                 totalHeight += childHeight
                 maxChildWidth = maxOf(maxChildWidth, size.width)
             }
@@ -375,7 +390,7 @@ class ColumnWidget(
         for (child in children) {
             visibleChildCount++
             if (child.grow == 0) {
-                totalFixedHeight += child.measure(innerWidth, innerHeight).height
+                totalFixedHeight += child.measureWithMargins(innerWidth, innerHeight).height
             }
         }
 
@@ -390,9 +405,9 @@ class ColumnWidget(
             val childHeight = if (child.grow > 0) {
                 (child.grow.toFloat() / totalGrow) * remainingHeight
             } else {
-                child.measure(innerWidth, innerHeight).height
+                child.measureWithMargins(innerWidth, innerHeight).height
             }
-            val childWidth = minOf(innerWidth, child.measure(innerWidth, childHeight).width)
+            val childWidth = minOf(innerWidth, child.measureWithMargins(innerWidth, childHeight).width)
 
             val childX = when (align) {
                 "center" -> startX + (innerWidth - childWidth) / 2f
@@ -400,7 +415,7 @@ class ColumnWidget(
                 else -> startX
             }
 
-            child.place(childX, currentY, childWidth, childHeight)
+            child.placeWithMargins(childX, currentY, childWidth, childHeight)
             currentY += childHeight + spacing.toFloat()
         }
     }
@@ -438,7 +453,7 @@ class RowWidget(
         for (child in children) {
             visibleChildCount++
             if (child.grow == 0) {
-                val size = child.measure(innerMaxWidth, innerMaxHeight)
+                val size = child.measureWithMargins(innerMaxWidth, innerMaxHeight)
                 totalWidth += size.width
                 maxChildHeight = maxOf(maxChildHeight, size.height)
             }
@@ -452,7 +467,7 @@ class RowWidget(
         for (child in children) {
             if (child.grow > 0) {
                 val childWidth = (child.grow.toFloat() / totalGrow) * remainingWidth
-                val size = child.measure(childWidth, innerMaxHeight)
+                val size = child.measureWithMargins(childWidth, innerMaxHeight)
                 totalWidth += childWidth
                 maxChildHeight = maxOf(maxChildHeight, size.height)
             }
@@ -478,7 +493,7 @@ class RowWidget(
         for (child in children) {
             visibleChildCount++
             if (child.grow == 0) {
-                totalFixedWidth += child.measure(innerWidth, innerHeight).width
+                totalFixedWidth += child.measureWithMargins(innerWidth, innerHeight).width
             }
         }
 
@@ -493,9 +508,9 @@ class RowWidget(
             val childWidth = if (child.grow > 0) {
                 (child.grow.toFloat() / totalGrow) * remainingWidth
             } else {
-                child.measure(innerWidth, innerHeight).width
+                child.measureWithMargins(innerWidth, innerHeight).width
             }
-            val childHeight = minOf(innerHeight, child.measure(childWidth, innerHeight).height)
+            val childHeight = minOf(innerHeight, child.measureWithMargins(childWidth, innerHeight).height)
 
             val childY = when (align) {
                 "center" -> startY + (innerHeight - childHeight) / 2f
@@ -503,7 +518,7 @@ class RowWidget(
                 else -> startY
             }
 
-            child.place(currentX, childY, childWidth, childHeight)
+            child.placeWithMargins(currentX, childY, childWidth, childHeight)
             currentX += childWidth + spacing.toFloat()
         }
     }
@@ -531,7 +546,7 @@ class StackWidget(
         var maxW = 0f
         var maxH = 0f
         for (child in children) {
-            val size = child.measure(maxWidth, maxHeight)
+            val size = child.measureWithMargins(maxWidth, maxHeight)
             maxW = maxOf(maxW, size.width)
             maxH = maxOf(maxH, size.height)
         }
@@ -544,7 +559,7 @@ class StackWidget(
         boundsW = width
         boundsH = height
         for (child in children) {
-            child.place(x, y, width, height)
+            child.placeWithMargins(x, y, width, height)
         }
     }
 
@@ -587,7 +602,7 @@ class GridWidget(
         var maxCellW = 0f
         var maxCellH = 0f
         for (child in children) {
-            val size = child.measure(cellMaxWidth, cellMaxHeight)
+            val size = child.measureWithMargins(cellMaxWidth, cellMaxHeight)
             maxCellW = maxOf(maxCellW, size.width)
             maxCellH = maxOf(maxCellH, size.height)
         }
@@ -625,7 +640,7 @@ class GridWidget(
             val cx = x + colIdx * (cellW + spacing.toFloat())
             val cy = y + rowIdx * (cellH + spacing.toFloat())
 
-            child.place(cx, cy, cellW, cellH)
+            child.placeWithMargins(cx, cy, cellW, cellH)
         }
     }
 
@@ -689,7 +704,7 @@ class FlexBoxWidget(
         var currentLineTotalGrow = 0
 
         for (child in children) {
-            val size = child.measure(innerMaxWidth, innerMaxHeight)
+            val size = child.measureWithMargins(innerMaxWidth, innerMaxHeight)
             val spacingCost = if (currentLineChildren.isNotEmpty()) spacing.toFloat() else 0f
 
             if (direction == "row") {
@@ -839,7 +854,7 @@ class FlexBoxWidget(
                         else -> currentY
                     }
 
-                    child.place(currentX, childY, childWidth, childHeight)
+                    child.placeWithMargins(currentX, childY, childWidth, childHeight)
                     currentX += childWidth + gap
                 }
                 currentY += line.crossSize + spacing.toFloat()
@@ -903,7 +918,7 @@ class FlexBoxWidget(
                         else -> currentX
                     }
 
-                    child.place(childX, currentY, childWidth, childHeight)
+                    child.placeWithMargins(childX, currentY, childWidth, childHeight)
                     currentY += childHeight + gap
                 }
                 currentX += line.crossSize + spacing.toFloat()
@@ -931,9 +946,15 @@ fun Widget.flexBox(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: FlexBoxWidget.() -> Unit = {}
 ): FlexBoxWidget {
     val w = FlexBoxWidget(direction, wrap, justifyContent, alignItems, spacing, padding, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
@@ -948,9 +969,15 @@ fun Widget.column(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: ColumnWidget.() -> Unit = {}
 ): ColumnWidget {
     val w = ColumnWidget(spacing, padding, align, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
@@ -965,9 +992,15 @@ fun Widget.row(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: RowWidget.() -> Unit = {}
 ): RowWidget {
     val w = RowWidget(spacing, padding, align, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
@@ -979,9 +1012,15 @@ fun Widget.stack(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: StackWidget.() -> Unit = {}
 ): StackWidget {
     val w = StackWidget(grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
@@ -996,18 +1035,30 @@ fun Widget.grid(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: GridWidget.() -> Unit = {}
 ): GridWidget {
     val w = GridWidget(columns, rows, spacing, grow, cornerRadius, backgroundColor, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
 }
 
 fun Widget.spacer(
-    grow: Int = 1
+    grow: Int = 1,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): SpacerWidget {
     val w = SpacerWidget(grow)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     return w
 }
@@ -1028,7 +1079,7 @@ class CardWidget(
         var maxW = 0f
         var maxH = 0f
         for (child in children) {
-            val size = child.measure(maxWidth - 2 * padding, maxHeight - 2 * padding)
+            val size = child.measureWithMargins(maxWidth - 2 * padding, maxHeight - 2 * padding)
             maxW = maxOf(maxW, size.width)
             maxH = maxOf(maxH, size.height)
         }
@@ -1042,7 +1093,7 @@ class CardWidget(
         boundsH = height
         val padding = 16f
         for (child in children) {
-            child.place(x + padding, y + padding, width - 2 * padding, height - 2 * padding)
+            child.placeWithMargins(x + padding, y + padding, width - 2 * padding, height - 2 * padding)
         }
     }
 
@@ -1060,9 +1111,15 @@ fun Widget.card(
     backgroundColor: String = "",
     borderColor: String = "",
     borderThickness: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1,
     block: CardWidget.() -> Unit = {}
 ): CardWidget {
     val w = CardWidget(cornerRadius, backgroundColor, grow, borderColor, borderThickness)
+    w.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(w)
     w.block()
     return w
@@ -1076,8 +1133,27 @@ fun Widget.text(
     fontColor: String = "",
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
-    fontWeight: Int = 400
-): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset, fontWeight = fontWeight)
+    fontWeight: Int = 400,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): LabelWidget = label(
+    text = value,
+    grow = grow,
+    fontSize = fontSize,
+    fontFamily = fontFamily,
+    fontColor = fontColor,
+    fontShadowColor = fontShadowColor,
+    fontShadowOffset = fontShadowOffset,
+    fontWeight = fontWeight,
+    margin = margin,
+    marginTop = marginTop,
+    marginBottom = marginBottom,
+    marginLeft = marginLeft,
+    marginRight = marginRight
+)
 
 fun Widget.text(
     value: Binding<String>,
@@ -1087,8 +1163,27 @@ fun Widget.text(
     fontColor: String = "",
     fontShadowColor: String = "",
     fontShadowOffset: Int = 0,
-    fontWeight: Int = 400
-): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset, fontWeight = fontWeight)
+    fontWeight: Int = 400,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): LabelWidget = label(
+    text = value,
+    grow = grow,
+    fontSize = fontSize,
+    fontFamily = fontFamily,
+    fontColor = fontColor,
+    fontShadowColor = fontShadowColor,
+    fontShadowOffset = fontShadowOffset,
+    fontWeight = fontWeight,
+    margin = margin,
+    marginTop = marginTop,
+    marginBottom = marginBottom,
+    marginLeft = marginLeft,
+    marginRight = marginRight
+)
 
 class ImageWidget(
     val source: String,
@@ -1229,9 +1324,15 @@ fun Widget.image(
     borderThickness: Int = 0,
     shadowColor: String = "",
     shadowOffset: Int = 0,
-    grow: Int = 0
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): ImageWidget {
     val img = ImageWidget(source, width, height, cornerRadius, backgroundColor, borderColor, borderThickness, shadowColor, shadowOffset, grow)
+    img.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(img)
     return img
 }
@@ -1246,9 +1347,15 @@ fun Widget.svg(
     borderThickness: Int = 0,
     shadowColor: String = "",
     shadowOffset: Int = 0,
-    grow: Int = 0
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
 ): SvgWidget {
     val s = SvgWidget(path, width, height, cornerRadius, backgroundColor, borderColor, borderThickness, shadowColor, shadowOffset, grow)
+    s.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
     this.addChild(s)
     return s
 }
