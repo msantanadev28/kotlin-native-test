@@ -25,7 +25,16 @@ fun <T> bind(read: () -> T): Binding<T> = Binding(read)
 
 interface DrawCanvas {
     fun drawRect(x: Float, y: Float, w: Float, h: Float, color: UInt)
-    fun drawText(text: String, x: Float, y: Float, color: UInt, size: Float)
+    fun drawText(
+        text: String,
+        x: Float,
+        y: Float,
+        color: UInt,
+        size: Float,
+        fontFamily: String = "",
+        shadowColor: UInt = 0u,
+        shadowOffset: Float = 0f
+    )
     fun drawRoundRect(x: Float, y: Float, w: Float, h: Float, radius: Float, color: UInt)
 }
 

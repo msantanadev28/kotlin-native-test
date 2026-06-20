@@ -209,13 +209,14 @@ Renders textual data. Can display raw static strings or evaluate reactive bindin
 *   **Properties:**
     *   `text` (String | Binding): Text content to draw. **Required.**
     *   `grow` (Int): Specifies the layout flex-ratio. Default is `0`.
+    *   `fontSize` (Int): The text size in points. Default is `16`.
+    *   `fontFamily` (String): The name of the font typeface (e.g. `"Arial"`, `"Consolas"`, `"Courier New"`). Default is system default.
+    *   `fontColor` (String): Text color hex code (e.g. `"#FF0000"`). Default is Dark Gray `"#111827"`.
+    *   `fontShadowColor` (String): The drop shadow color. Default is `""` (no shadow).
+    *   `fontShadowOffset` (Int): Drop shadow displacement distance in pixels. Requires `fontShadowColor`. Default is `0`.
 *   **Example:**
     ```xml
-    <!-- Static Text with flex grow -->
-    <Label text="Welcome to Lienzo UI" grow="1"/>
-    
-    <!-- State-Bound Reactive Text -->
-    <Label text="{bind { \"Count: ${counter.value}\" }}"/>
+    <Label text="Header Title" fontSize="24" fontFamily="Consolas" fontColor="#1D4ED8" fontShadowColor="#93C5FD" fontShadowOffset="3"/>
     ```
 
 #### 2. `<Button>`
@@ -229,9 +230,14 @@ Clickable action trigger. Renders a rounded background panel that highlights on 
     *   `backgroundColor` (String): Fills the button background. If set, overrides the state-based default background.
     *   `borderColor` (String): Outlining border color. Default is `""` (no border).
     *   `borderThickness` (Int): Width in pixels of the border stroke. Requires `borderColor`. Default is `0`.
+    *   `fontSize` (Int): The text size in points. Default is `16`.
+    *   `fontFamily` (String): The name of the font typeface. Default is system default.
+    *   `fontColor` (String): Text label color override. Default is White `"#FFFFFF"`.
+    *   `fontShadowColor` (String): The label drop shadow color. Default is `""`.
+    *   `fontShadowOffset` (Int): Shadow displacement in pixels. Default is `0`.
 *   **Example:**
     ```xml
-    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" borderColor="#047857" borderThickness="2"/>
+    <Button text="Submit Data" onClick="onFormSubmit" enabled="true" grow="0" cornerRadius="12" backgroundColor="#10B981" borderColor="#047857" borderThickness="2" fontSize="18" fontFamily="Arial" fontColor="#FFFFFF" fontShadowColor="#064E3B" fontShadowOffset="2"/>
     ```
 
 #### 3. `<Spacer>`

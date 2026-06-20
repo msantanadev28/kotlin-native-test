@@ -45,17 +45,42 @@ class SkiaCanvas(
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    override fun drawText(text: String, x: Float, y: Float, color: UInt, size: Float) {
+    override fun drawText(
+        text: String,
+        x: Float,
+        y: Float,
+        color: UInt,
+        size: Float,
+        fontFamily: String,
+        shadowColor: UInt,
+        shadowOffset: Float
+    ) {
         memScoped {
             val paint = skia.paintNew.invoke()
-            skia.paintSetColor.invoke(paint, color)
             skia.paintSetAntialias.invoke(paint, true)
 
             val font = skia.fontNew.invoke()
             skia.fontSetSize.invoke(font, size)
 
+            if (fontFamily.isNotEmpty()) {
+                val familyNamePtr = fontFamily.cstr
+                val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr.getPointer(this), 0)
+                if (typeface != null) {
+                    skia.fontSetTypeface.invoke(font, typeface)
+                    skia.typefaceUnref.invoke(typeface)
+                }
+            }
+
             val bytes = text.cstr
-            skia.canvasDrawSimpleText.invoke(nativeCanvas, bytes.getPointer(this), (bytes.size - 1).toLong(), 0, x, y, font, paint)
+            val textLen = (bytes.size - 1).toLong()
+
+            if (shadowColor != 0u && shadowOffset != 0f) {
+                skia.paintSetColor.invoke(paint, shadowColor)
+                skia.canvasDrawSimpleText.invoke(nativeCanvas, bytes.getPointer(this), textLen, 0, x + shadowOffset, y + shadowOffset, font, paint)
+            }
+
+            skia.paintSetColor.invoke(paint, color)
+            skia.canvasDrawSimpleText.invoke(nativeCanvas, bytes.getPointer(this), textLen, 0, x, y, font, paint)
 
             skia.fontDelete.invoke(font)
             skia.paintDelete.invoke(paint)

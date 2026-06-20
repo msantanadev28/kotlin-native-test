@@ -25,6 +25,9 @@ class SkiaLibrary {
     lateinit var fontNew: CPointer<CFunction<() -> COpaquePointer?>>
     lateinit var fontDelete: CPointer<CFunction<(COpaquePointer?) -> Unit>>
     lateinit var fontSetSize: CPointer<CFunction<(COpaquePointer?, Float) -> Unit>>
+    lateinit var fontSetTypeface: CPointer<CFunction<(COpaquePointer?, COpaquePointer?) -> Unit>>
+    lateinit var typefaceCreateFromName: CPointer<CFunction<(kotlinx.cinterop.CPointer<kotlinx.cinterop.ByteVar>?, Int) -> COpaquePointer?>>
+    lateinit var typefaceUnref: CPointer<CFunction<(COpaquePointer?) -> Unit>>
     lateinit var surfaceGetCanvas: CPointer<CFunction<(COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceNewRasterDirect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Long, COpaquePointer?, COpaquePointer?, COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceUnref: CPointer<CFunction<(COpaquePointer?) -> Unit>>
@@ -47,6 +50,9 @@ class SkiaLibrary {
         fontNew = loadFunction("sk_font_new")
         fontDelete = loadFunction("sk_font_delete")
         fontSetSize = loadFunction("sk_font_set_size")
+        fontSetTypeface = loadFunction("sk_font_set_typeface")
+        typefaceCreateFromName = loadFunction("sk_typeface_create_from_name")
+        typefaceUnref = loadFunction("sk_typeface_unref")
         surfaceGetCanvas = loadFunction("sk_surface_get_canvas")
         surfaceNewRasterDirect = loadFunction("sk_surface_new_raster_direct")
         surfaceUnref = loadFunction("sk_surface_unref")

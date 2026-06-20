@@ -179,15 +179,21 @@ class ButtonWidget(
 }
 
 class LabelWidget(
-    val textBinding: Binding<String>
+    val textBinding: Binding<String>,
+    val fontSize: Int = 16,
+    val fontFamily: String = "",
+    val fontColor: String = "",
+    val fontShadowColor: String = "",
+    val fontShadowOffset: Int = 0
 ) : Widget() {
     val text: String
         get() = textBinding.read()
 
     override fun measure(maxWidth: Float, maxHeight: Float): Size {
         val str = text
-        val textWidth = str.length * 10f + 40f
-        val textHeight = 44f
+        val size = fontSize.toFloat()
+        val textWidth = str.length * (size * 0.6f) + 40f
+        val textHeight = size * 1.4f + 20f
         return Size(textWidth, textHeight)
     }
 
@@ -200,11 +206,13 @@ class LabelWidget(
 
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
         val str = text
-        val textColor = 0xFF111827u // Dark gray
-        val textWidth = str.length * 8f
+        val baseColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFF111827u
+        val sColor = if (fontShadowColor.isNotEmpty()) parseColor(fontShadowColor) else 0u
+        val size = fontSize.toFloat()
+        val textWidth = str.length * (size * 0.5f)
         val textX = x + (width - textWidth) / 2f
-        val textY = y + (height - 14f) / 2f + 10f
-        canvas.drawText(str, textX, textY, textColor, 16f)
+        val textY = y + (height - size) / 2f + (size * 0.8f)
+        canvas.drawText(str, textX, textY, baseColor, size, fontFamily, sColor, fontShadowOffset.toFloat())
     }
 }
 
@@ -235,18 +243,28 @@ fun Widget.button(
 
 fun Widget.label(
     text: Binding<String>,
-    grow: Int = 0
+    grow: Int = 0,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    fontShadowColor: String = "",
+    fontShadowOffset: Int = 0
 ): LabelWidget {
-    val l = LabelWidget(text).apply { this.grow = grow }
+    val l = LabelWidget(text, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset).apply { this.grow = grow }
     this.addChild(l)
     return l
 }
 
 fun Widget.label(
     text: String,
-    grow: Int = 0
+    grow: Int = 0,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    fontShadowColor: String = "",
+    fontShadowOffset: Int = 0
 ): LabelWidget {
-    val l = LabelWidget(bind { text }).apply { this.grow = grow }
+    val l = LabelWidget(bind { text }, fontSize, fontFamily, fontColor, fontShadowColor, fontShadowOffset).apply { this.grow = grow }
     this.addChild(l)
     return l
 }
@@ -1011,13 +1029,23 @@ fun Widget.card(
 
 fun Widget.text(
     value: String,
-    grow: Int = 0
-): LabelWidget = label(text = value, grow = grow)
+    grow: Int = 0,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    fontShadowColor: String = "",
+    fontShadowOffset: Int = 0
+): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset)
 
 fun Widget.text(
     value: Binding<String>,
-    grow: Int = 0
-): LabelWidget = label(text = value, grow = grow)
+    grow: Int = 0,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    fontShadowColor: String = "",
+    fontShadowOffset: Int = 0
+): LabelWidget = label(text = value, grow = grow, fontSize = fontSize, fontFamily = fontFamily, fontColor = fontColor, fontShadowColor = fontShadowColor, fontShadowOffset = fontShadowOffset)
 
 
 
