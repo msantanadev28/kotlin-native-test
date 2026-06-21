@@ -33,25 +33,7 @@ fun drawBackgroundAndBorder(
     val hasBg = backgroundColor.isNotEmpty()
     val hasBorder = borderColor.isNotEmpty() && borderThickness > 0
 
-    if (hasBorder) {
-        val bColor = parseColor(borderColor)
-        if (cornerRadius > 0) {
-            canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bColor)
-        } else {
-            canvas.drawRect(x, y, width, height, bColor)
-        }
-
-        val bgStr = if (hasBg) backgroundColor else "0xFFFFFFFF"
-        val bgColor = parseColor(bgStr)
-        val t = borderThickness.toFloat()
-        val innerRadius = maxOf(0f, cornerRadius.toFloat() - t)
-
-        if (innerRadius > 0f) {
-            canvas.drawRoundRect(x + t, y + t, width - 2 * t, height - 2 * t, innerRadius, bgColor)
-        } else {
-            canvas.drawRect(x + t, y + t, width - 2 * t, height - 2 * t, bgColor)
-        }
-    } else if (hasBg) {
+    if (hasBg) {
         val bg = parseColor(backgroundColor)
         if (cornerRadius > 0) {
             canvas.drawRoundRect(x, y, width, height, cornerRadius.toFloat(), bg)
@@ -59,8 +41,12 @@ fun drawBackgroundAndBorder(
             canvas.drawRect(x, y, width, height, bg)
         }
     }
-}
 
+    if (hasBorder) {
+        val bColor = parseColor(borderColor)
+        canvas.drawRoundRectStroke(x, y, width, height, cornerRadius.toFloat(), bColor, borderThickness.toFloat())
+    }
+}
 
 class WindowWidget(
     val title: String,
@@ -1473,7 +1459,7 @@ class TextBoxWidget(
             val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
             canvas.drawText(currentText, x + paddingX, textY, fColor, size, fontFamily)
             if (isFocused) {
-                val textWidth = currentText.length * (size * 0.6f)
+                val textWidth = currentText.length * (size * 0.46f)
                 val cursorHeight = size * 1.1f
                 val cursorTop = textY - size * 0.9f
                 canvas.drawRect(x + paddingX + textWidth, cursorTop, 2f, cursorHeight, fColor)
@@ -1603,7 +1589,7 @@ class TextAreaWidget(
             }
             if (isFocused) {
                 val lastLine = lines.last()
-                val textWidth = lastLine.length * (size * 0.6f)
+                val textWidth = lastLine.length * (size * 0.46f)
                 val cursorHeight = size * 1.1f
                 val lastLineY = y + 12f + (size * 0.8f) + (lines.size - 1) * size * 1.3f
                 val cursorTop = lastLineY - size * 0.9f

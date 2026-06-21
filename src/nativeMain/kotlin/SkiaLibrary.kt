@@ -17,6 +17,8 @@ class SkiaLibrary {
     lateinit var paintDelete: CPointer<CFunction<(COpaquePointer?) -> Unit>>
     lateinit var paintSetColor: CPointer<CFunction<(COpaquePointer?, UInt) -> Unit>>
     lateinit var paintSetAntialias: CPointer<CFunction<(COpaquePointer?, Boolean) -> Unit>>
+    lateinit var paintSetStyle: CPointer<CFunction<(COpaquePointer?, Int) -> Unit>>
+    lateinit var paintSetStrokeWidth: CPointer<CFunction<(COpaquePointer?, Float) -> Unit>>
     lateinit var canvasClear: CPointer<CFunction<(COpaquePointer?, UInt) -> Unit>>
     lateinit var canvasDrawCircle: CPointer<CFunction<(COpaquePointer?, Float, Float, Float, COpaquePointer?) -> Unit>>
     lateinit var canvasDrawRect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, COpaquePointer?) -> Unit>>
@@ -42,6 +44,8 @@ class SkiaLibrary {
         paintDelete = loadFunction("sk_paint_delete")
         paintSetColor = loadFunction("sk_paint_set_color")
         paintSetAntialias = loadFunction("sk_paint_set_antialias")
+        paintSetStyle = loadFunction("sk_paint_set_style")
+        paintSetStrokeWidth = loadFunction("sk_paint_set_stroke_width")
         canvasClear = loadFunction("sk_canvas_clear")
         canvasDrawCircle = loadFunction("sk_canvas_draw_circle")
         canvasDrawRect = loadFunction("sk_canvas_draw_rect")

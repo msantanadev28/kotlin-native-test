@@ -89,4 +89,24 @@ class SkiaCanvas(
             skia.paintDelete.invoke(paint)
         }
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun drawRoundRectStroke(x: Float, y: Float, w: Float, h: Float, radius: Float, color: UInt, thickness: Float) {
+        memScoped {
+            val rect = allocArray<FloatVar>(4)
+            val halfT = thickness / 2f
+            rect[0] = x + halfT
+            rect[1] = y + halfT
+            rect[2] = x + w - halfT
+            rect[3] = y + h - halfT
+
+            val paint = skia.paintNew.invoke()
+            skia.paintSetColor.invoke(paint, color)
+            skia.paintSetAntialias.invoke(paint, true)
+            skia.paintSetStyle.invoke(paint, 1) // 1 = Stroke
+            skia.paintSetStrokeWidth.invoke(paint, thickness)
+            skia.canvasDrawRoundRect.invoke(nativeCanvas, rect, maxOf(0f, radius - halfT), maxOf(0f, radius - halfT), paint)
+            skia.paintDelete.invoke(paint)
+        }
+    }
 }

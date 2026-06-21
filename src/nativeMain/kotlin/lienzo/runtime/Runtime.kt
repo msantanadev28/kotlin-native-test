@@ -37,6 +37,7 @@ interface DrawCanvas {
         fontWeight: Int = 400
     )
     fun drawRoundRect(x: Float, y: Float, w: Float, h: Float, radius: Float, color: UInt)
+    fun drawRoundRectStroke(x: Float, y: Float, w: Float, h: Float, radius: Float, color: UInt, thickness: Float)
 }
 
 sealed class UiEvent {
