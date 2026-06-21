@@ -33,6 +33,7 @@ class SkiaLibrary {
     lateinit var surfaceGetCanvas: CPointer<CFunction<(COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceNewRasterDirect: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Long, COpaquePointer?, COpaquePointer?, COpaquePointer?) -> COpaquePointer?>>
     lateinit var surfaceUnref: CPointer<CFunction<(COpaquePointer?) -> Unit>>
+    lateinit var fontMeasureText: CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Long, Int, COpaquePointer?, COpaquePointer?) -> Float>>
 
     fun load() {
         handle = LoadLibraryA("libSkiaSharp.dll")
@@ -60,6 +61,7 @@ class SkiaLibrary {
         surfaceGetCanvas = loadFunction("sk_surface_get_canvas")
         surfaceNewRasterDirect = loadFunction("sk_surface_new_raster_direct")
         surfaceUnref = loadFunction("sk_surface_unref")
+        fontMeasureText = loadFunction("sk_font_measure_text")
     }
 
     fun <T : CPointed> loadFunction(name: String): CPointer<T> {
