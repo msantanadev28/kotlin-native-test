@@ -1459,7 +1459,7 @@ class TextBoxWidget(
             val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
             canvas.drawText(currentText, x + paddingX, textY, fColor, size, fontFamily)
             if (isFocused) {
-                val textWidth = currentText.length * (size * 0.46f)
+                val textWidth = canvas.measureText(currentText, size, fontFamily)
                 val cursorHeight = size * 1.1f
                 val cursorTop = textY - size * 0.9f
                 canvas.drawRect(x + paddingX + textWidth, cursorTop, 2f, cursorHeight, fColor)
@@ -1589,15 +1589,13 @@ class TextAreaWidget(
             }
             if (isFocused) {
                 val lastLine = lines.last()
-                val textWidth = lastLine.length * (size * 0.46f)
+                val textWidth = canvas.measureText(lastLine, size, fontFamily)
                 val cursorHeight = size * 1.1f
                 val lastLineY = y + 12f + (size * 0.8f) + (lines.size - 1) * size * 1.3f
                 val cursorTop = lastLineY - size * 0.9f
                 canvas.drawRect(x + paddingX + textWidth, cursorTop, 2f, cursorHeight, fColor)
             }
-        }
-
-        // Draw visual resize handle in bottom-right corner
+        }        // Draw visual resize handle in bottom-right corner
         val handleSize = 8f
         val hx = x + width - handleSize - 4f
         val hy = y + height - handleSize - 4f

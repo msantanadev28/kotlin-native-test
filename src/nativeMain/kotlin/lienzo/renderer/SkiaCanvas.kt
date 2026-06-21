@@ -109,4 +109,31 @@ class SkiaCanvas(
             skia.paintDelete.invoke(paint)
         }
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun measureText(text: String, size: Float, fontFamily: String, fontWeight: Int): Float {
+        if (text.isEmpty()) return 0f
+        return memScoped {
+            val font = skia.fontNew.invoke()
+            skia.fontSetSize.invoke(font, size)
+
+            val familyNamePtr = if (fontFamily.isNotEmpty()) fontFamily.cstr.getPointer(this) else null
+            val fontStyle = allocArray<IntVar>(3)
+            fontStyle[0] = fontWeight
+            fontStyle[1] = 5
+            fontStyle[2] = 0
+            val typeface = skia.typefaceCreateFromName.invoke(familyNamePtr, fontStyle)
+            if (typeface != null) {
+                skia.fontSetTypeface.invoke(font, typeface)
+                skia.typefaceUnref.invoke(typeface)
+            }
+
+            val bytes = text.cstr
+            val textLen = (bytes.size - 1).toLong()
+            val width = skia.fontMeasureText.invoke(font, bytes.getPointer(this), textLen, 0, null, null)
+
+            skia.fontDelete.invoke(font)
+            width
+        }
+    }
 }
