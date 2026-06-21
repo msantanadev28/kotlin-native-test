@@ -1442,11 +1442,10 @@ class TextBoxWidget(
             else -> super.handleEvent(event)
         }
     }
-
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
         val bg = if (backgroundColor.isNotEmpty()) backgroundColor else "0x1AFFFFFF"
         val border = if (isFocused) {
-            if (borderColor.isNotEmpty()) borderColor else "0xFF3B82F6"
+            if (borderColor.isNotEmpty()) borderColor else "0xFF6366F1"
         } else {
             if (borderColor.isNotEmpty()) borderColor else "0x33FFFFFF"
         }
@@ -1461,11 +1460,24 @@ class TextBoxWidget(
 
         if (currentText.isEmpty() && placeholder.isNotEmpty()) {
             val pColor = if (placeholderColor.isNotEmpty()) parseColor(placeholderColor) else 0x809CA3AFu
-            canvas.drawText(placeholder, x + paddingX, textY, pColor, size, fontFamily)
+            if (isFocused) {
+                val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
+                val cursorHeight = size * 1.1f
+                val cursorTop = textY - size * 0.9f
+                canvas.drawRect(x + paddingX, cursorTop, 2f, cursorHeight, fColor)
+                canvas.drawText(placeholder, x + paddingX + 8f, textY, pColor, size, fontFamily)
+            } else {
+                canvas.drawText(placeholder, x + paddingX, textY, pColor, size, fontFamily)
+            }
         } else {
             val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
-            val displayStr = if (isFocused) "$currentText|" else currentText
-            canvas.drawText(displayStr, x + paddingX, textY, fColor, size, fontFamily)
+            canvas.drawText(currentText, x + paddingX, textY, fColor, size, fontFamily)
+            if (isFocused) {
+                val textWidth = currentText.length * (size * 0.6f)
+                val cursorHeight = size * 1.1f
+                val cursorTop = textY - size * 0.9f
+                canvas.drawRect(x + paddingX + textWidth, cursorTop, 2f, cursorHeight, fColor)
+            }
         }
     }
 }
@@ -1555,11 +1567,10 @@ class TextAreaWidget(
             else -> super.handleEvent(event)
         }
     }
-
     override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
         val bg = if (backgroundColor.isNotEmpty()) backgroundColor else "0x1AFFFFFF"
         val border = if (isFocused) {
-            if (borderColor.isNotEmpty()) borderColor else "0xFF3B82F6"
+            if (borderColor.isNotEmpty()) borderColor else "0xFF6366F1"
         } else {
             if (borderColor.isNotEmpty()) borderColor else "0x33FFFFFF"
         }
@@ -1574,14 +1585,29 @@ class TextAreaWidget(
         val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
         if (currentText.isEmpty() && placeholder.isNotEmpty()) {
             val pColor = if (placeholderColor.isNotEmpty()) parseColor(placeholderColor) else 0x809CA3AFu
-            canvas.drawText(placeholder, x + paddingX, y + 12f + (size * 0.8f), pColor, size, fontFamily)
+            val textY = y + 12f + (size * 0.8f)
+            if (isFocused) {
+                val cursorHeight = size * 1.1f
+                val cursorTop = textY - size * 0.9f
+                canvas.drawRect(x + paddingX, cursorTop, 2f, cursorHeight, fColor)
+                canvas.drawText(placeholder, x + paddingX + 8f, textY, pColor, size, fontFamily)
+            } else {
+                canvas.drawText(placeholder, x + paddingX, textY, pColor, size, fontFamily)
+            }
         } else {
-            val displayStr = if (isFocused) "$currentText|" else currentText
-            val lines = displayStr.split('\n')
+            val lines = currentText.split('\n')
             var currentY = y + 12f + (size * 0.8f)
             for (line in lines) {
                 canvas.drawText(line, x + paddingX, currentY, fColor, size, fontFamily)
                 currentY += size * 1.3f
+            }
+            if (isFocused) {
+                val lastLine = lines.last()
+                val textWidth = lastLine.length * (size * 0.6f)
+                val cursorHeight = size * 1.1f
+                val lastLineY = y + 12f + (size * 0.8f) + (lines.size - 1) * size * 1.3f
+                val cursorTop = lastLineY - size * 0.9f
+                canvas.drawRect(x + paddingX + textWidth, cursorTop, 2f, cursorHeight, fColor)
             }
         }
 

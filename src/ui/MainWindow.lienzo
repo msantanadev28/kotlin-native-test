@@ -1,6 +1,6 @@
 <Window title="Input Widgets App" width="600" height="500" theme="mica">
     <Column spacing="16" padding="20" align="center">
-        <Label fontColor="#ffffff" fontWeight="700" text="{bind { \"Clicked ${counter.value} times\" }}"/>
+        <Label fontColor="#ffffff" fontWeight="700" text="{bind { labelText.value }}"/>
         
         <Column spacing="8" align="start">
             <Label fontColor="#ffffff" text="Email"/>

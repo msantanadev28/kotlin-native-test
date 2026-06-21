@@ -8,14 +8,19 @@ import lienzo.runtime.state
 val counter = state(0)
 val emailText = state("")
 val commentText = state("")
+val labelText = state("No input yet")
 
 fun onButtonClick() {
     counter.value++
-    println("Button clicked! Counter value: ${counter.value}")
+    labelText.value = "Email: ${emailText.value} | Comment: ${commentText.value.replace("\n", " ")}"
+    println("Button clicked! Counter value: ${counter.value}, Label text: ${labelText.value}")
 }
 
 fun onResetClick() {
     counter.value = 0
+    emailText.value = ""
+    commentText.value = ""
+    labelText.value = "No input yet"
     println("Counter reset!")
 }
 
@@ -36,6 +41,9 @@ fun main() {
     }
     commentText.observe {
         println("Comment typed: ${commentText.value}")
+        rootWidget.invalidate()
+    }
+    labelText.observe {
         rootWidget.invalidate()
     }
 
