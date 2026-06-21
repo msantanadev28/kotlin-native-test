@@ -190,6 +190,7 @@ class ButtonWidget(
                     invalidate()
                 }
             }
+            else -> super.handleEvent(event)
         }
     }
 }
@@ -1359,6 +1360,336 @@ fun Widget.svg(
     this.addChild(s)
     return s
 }
+
+class TextBoxWidget(
+    val bind: State<String>? = null,
+    val placeholder: String = "",
+    val width: Int = -1,
+    val height: Int = 40,
+    val fontSize: Int = 16,
+    val fontFamily: String = "",
+    val fontColor: String = "",
+    val placeholderColor: String = "",
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = -1,
+    val cornerRadius: Int = 6,
+    grow: Int = 0
+) : Widget() {
+    init {
+        this.grow = grow
+        bind?.observe { invalidate() }
+    }
+
+    private var localText = ""
+
+    var text: String
+        get() = bind?.value ?: localText
+        set(value) {
+            if (bind != null) {
+                bind.value = value
+            } else {
+                localText = value
+            }
+            invalidate()
+        }
+
+    var isFocused = false
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        val w = if (width > 0) width.toFloat() else 200f
+        val h = if (height > 0) height.toFloat() else 40f
+        return Size(w, h)
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+    }
+
+    override fun handleEvent(event: UiEvent) {
+        when (event) {
+            is UiEvent.Click -> {
+                requestFocus(this)
+            }
+            is UiEvent.Focus -> {
+                isFocused = true
+                invalidate()
+            }
+            is UiEvent.Blur -> {
+                isFocused = false
+                invalidate()
+            }
+            is UiEvent.KeyDown -> {
+                if (isFocused) {
+                    val currentVal = text
+                    if (event.char != null) {
+                        val c = event.char
+                        if (c != '\b' && c != '\r' && c != '\n' && c != '\t' && c.code >= 32) {
+                            text = currentVal + c
+                        }
+                    } else {
+                        if (event.keyCode == 8) { // Backspace
+                            if (currentVal.isNotEmpty()) {
+                                text = currentVal.substring(0, currentVal.length - 1)
+                            }
+                        }
+                    }
+                }
+            }
+            else -> super.handleEvent(event)
+        }
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        val bg = if (backgroundColor.isNotEmpty()) backgroundColor else "0x1AFFFFFF"
+        val border = if (isFocused) {
+            if (borderColor.isNotEmpty()) borderColor else "0xFF3B82F6"
+        } else {
+            if (borderColor.isNotEmpty()) borderColor else "0x33FFFFFF"
+        }
+        val thickness = if (borderThickness >= 0) borderThickness else (if (isFocused) 2 else 1)
+
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, bg, border, thickness)
+
+        val paddingX = 12f
+        val currentText = text
+        val size = fontSize.toFloat()
+        val textY = y + (height - size) / 2f + (size * 0.8f)
+
+        if (currentText.isEmpty() && placeholder.isNotEmpty()) {
+            val pColor = if (placeholderColor.isNotEmpty()) parseColor(placeholderColor) else 0x809CA3AFu
+            canvas.drawText(placeholder, x + paddingX, textY, pColor, size, fontFamily)
+        } else {
+            val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
+            val displayStr = if (isFocused) "$currentText|" else currentText
+            canvas.drawText(displayStr, x + paddingX, textY, fColor, size, fontFamily)
+        }
+    }
+}
+
+class TextAreaWidget(
+    val bind: State<String>? = null,
+    val placeholder: String = "",
+    val width: Int = -1,
+    val height: Int = 100,
+    val fontSize: Int = 16,
+    val fontFamily: String = "",
+    val fontColor: String = "",
+    val placeholderColor: String = "",
+    val backgroundColor: String = "",
+    val borderColor: String = "",
+    val borderThickness: Int = -1,
+    val cornerRadius: Int = 6,
+    grow: Int = 0
+) : Widget() {
+    init {
+        this.grow = grow
+        bind?.observe { invalidate() }
+    }
+
+    private var localText = ""
+
+    var text: String
+        get() = bind?.value ?: localText
+        set(value) {
+            if (bind != null) {
+                bind.value = value
+            } else {
+                localText = value
+            }
+            invalidate()
+        }
+
+    var isFocused = false
+
+    override fun measure(maxWidth: Float, maxHeight: Float): Size {
+        val w = if (width > 0) width.toFloat() else 300f
+        val h = if (height > 0) height.toFloat() else 100f
+        return Size(w, h)
+    }
+
+    override fun place(x: Float, y: Float, width: Float, height: Float) {
+        boundsX = x
+        boundsY = y
+        boundsW = width
+        boundsH = height
+    }
+
+    override fun handleEvent(event: UiEvent) {
+        when (event) {
+            is UiEvent.Click -> {
+                requestFocus(this)
+            }
+            is UiEvent.Focus -> {
+                isFocused = true
+                invalidate()
+            }
+            is UiEvent.Blur -> {
+                isFocused = false
+                invalidate()
+            }
+            is UiEvent.KeyDown -> {
+                if (isFocused) {
+                    val currentVal = text
+                    if (event.char != null) {
+                        val c = event.char
+                        if (c == '\n' || c == '\r') {
+                            text = currentVal + "\n"
+                        } else if (c != '\b' && c != '\t' && c.code >= 32) {
+                            text = currentVal + c
+                        }
+                    } else {
+                        if (event.keyCode == 8) { // Backspace
+                            if (currentVal.isNotEmpty()) {
+                                text = currentVal.substring(0, currentVal.length - 1)
+                            }
+                        } else if (event.keyCode == 13) { // Enter
+                            text = currentVal + "\n"
+                        }
+                    }
+                }
+            }
+            else -> super.handleEvent(event)
+        }
+    }
+
+    override fun draw(canvas: DrawCanvas, x: Float, y: Float, width: Float, height: Float) {
+        val bg = if (backgroundColor.isNotEmpty()) backgroundColor else "0x1AFFFFFF"
+        val border = if (isFocused) {
+            if (borderColor.isNotEmpty()) borderColor else "0xFF3B82F6"
+        } else {
+            if (borderColor.isNotEmpty()) borderColor else "0x33FFFFFF"
+        }
+        val thickness = if (borderThickness >= 0) borderThickness else (if (isFocused) 2 else 1)
+
+        drawBackgroundAndBorder(canvas, x, y, width, height, cornerRadius, bg, border, thickness)
+
+        val paddingX = 12f
+        val currentText = text
+        val size = fontSize.toFloat()
+
+        val fColor = if (fontColor.isNotEmpty()) parseColor(fontColor) else 0xFFFFFFFFu
+        if (currentText.isEmpty() && placeholder.isNotEmpty()) {
+            val pColor = if (placeholderColor.isNotEmpty()) parseColor(placeholderColor) else 0x809CA3AFu
+            canvas.drawText(placeholder, x + paddingX, y + 12f + (size * 0.8f), pColor, size, fontFamily)
+        } else {
+            val displayStr = if (isFocused) "$currentText|" else currentText
+            val lines = displayStr.split('\n')
+            var currentY = y + 12f + (size * 0.8f)
+            for (line in lines) {
+                canvas.drawText(line, x + paddingX, currentY, fColor, size, fontFamily)
+                currentY += size * 1.3f
+            }
+        }
+
+        // Draw visual resize handle in bottom-right corner
+        val handleSize = 8f
+        val hx = x + width - handleSize - 4f
+        val hy = y + height - handleSize - 4f
+        val handleColor = 0x809CA3AFu
+        canvas.drawRect(hx + 4f, hy + 4f, 2f, 2f, handleColor)
+        canvas.drawRect(hx + 4f, hy + 0f, 2f, 2f, handleColor)
+        canvas.drawRect(hx + 0f, hy + 4f, 2f, 2f, handleColor)
+    }
+}
+
+fun Widget.textBox(
+    bind: State<String>? = null,
+    placeholder: String = "",
+    width: Int = -1,
+    height: Int = 40,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    placeholderColor: String = "",
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = -1,
+    cornerRadius: Int = 6,
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): TextBoxWidget {
+    val tb = TextBoxWidget(bind, placeholder, width, height, fontSize, fontFamily, fontColor, placeholderColor, backgroundColor, borderColor, borderThickness, cornerRadius, grow)
+    tb.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
+    this.addChild(tb)
+    return tb
+}
+
+fun Widget.textbox(
+    bind: State<String>? = null,
+    placeholder: String = "",
+    width: Int = -1,
+    height: Int = 40,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    placeholderColor: String = "",
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = -1,
+    cornerRadius: Int = 6,
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): TextBoxWidget = textBox(bind, placeholder, width, height, fontSize, fontFamily, fontColor, placeholderColor, backgroundColor, borderColor, borderThickness, cornerRadius, grow, margin, marginTop, marginBottom, marginLeft, marginRight)
+
+fun Widget.textArea(
+    bind: State<String>? = null,
+    placeholder: String = "",
+    width: Int = -1,
+    height: Int = 100,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    placeholderColor: String = "",
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = -1,
+    cornerRadius: Int = 6,
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): TextAreaWidget {
+    val ta = TextAreaWidget(bind, placeholder, width, height, fontSize, fontFamily, fontColor, placeholderColor, backgroundColor, borderColor, borderThickness, cornerRadius, grow)
+    ta.applyLayout(grow, margin, marginTop, marginBottom, marginLeft, marginRight)
+    this.addChild(ta)
+    return ta
+}
+
+fun Widget.textarea(
+    bind: State<String>? = null,
+    placeholder: String = "",
+    width: Int = -1,
+    height: Int = 100,
+    fontSize: Int = 16,
+    fontFamily: String = "",
+    fontColor: String = "",
+    placeholderColor: String = "",
+    backgroundColor: String = "",
+    borderColor: String = "",
+    borderThickness: Int = -1,
+    cornerRadius: Int = 6,
+    grow: Int = 0,
+    margin: Int = 0,
+    marginTop: Int = -1,
+    marginBottom: Int = -1,
+    marginLeft: Int = -1,
+    marginRight: Int = -1
+): TextAreaWidget = textArea(bind, placeholder, width, height, fontSize, fontFamily, fontColor, placeholderColor, backgroundColor, borderColor, borderThickness, cornerRadius, grow, margin, marginTop, marginBottom, marginLeft, marginRight)
+
 
 
 

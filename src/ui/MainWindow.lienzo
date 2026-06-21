@@ -1,16 +1,20 @@
-<Window title="Button App" width="500" height="400" theme="mica">
+<Window title="Input Widgets App" width="600" height="500" theme="mica">
     <Column spacing="16" padding="20" align="center">
-        <Label fontColor="#cccccc" fontWeight="700" text="{bind { \"Clicked ${counter.value} times\" }}"/>
-        <FlexBox direction="row" wrap="true" justifyContent="space-between" alignItems="center" spacing="8" padding="10" grow="1">
-            <Card marginTop="20">
-                <Button text="Click Me" onClick="onButtonClick"/>
-            </Card>
-            <Card marginTop="40">
-                <Button backgroundColor="#181a1f" hoverColor="#059669"/ fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
-            </Card>
-            <Card marginTop="60">
-                <Button text="Click Me" onClick="onButtonClick"/>
-            </Card>
+        <Label fontColor="#ffffff" fontWeight="700" text="{bind { \"Clicked ${counter.value} times\" }}"/>
+        
+        <Column spacing="8" align="start">
+            <Label fontColor="#ffffff" text="Email"/>
+            <TextBox bind="emailText" placeholder="you@example.com" width="400"/>
+        </Column>
+
+        <Column spacing="8" align="start">
+            <Label fontColor="#ffffff" text="Add your comment"/>
+            <TextArea bind="commentText" placeholder="Type your comment here..." width="400" height="150"/>
+        </Column>
+
+        <FlexBox direction="row" wrap="true" justifyContent="space-between" alignItems="center" grow="1">
+            <Button text="Click Me" onClick="onButtonClick"/>
+            <Button backgroundColor="#181a1f" hoverColor="#059669" fontFamily="Algerian" fontSize="20" text="Reset" onClick="onResetClick"/>
         </FlexBox>
     </Column>
 </Window>

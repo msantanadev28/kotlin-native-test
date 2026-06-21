@@ -6,6 +6,8 @@ import Window
 import lienzo.runtime.state
 
 val counter = state(0)
+val emailText = state("")
+val commentText = state("")
 
 fun onButtonClick() {
     counter.value++
@@ -26,6 +28,14 @@ fun main() {
     renderer.rootWidget = rootWidget
 
     counter.observe {
+        rootWidget.invalidate()
+    }
+    emailText.observe {
+        println("Email typed: ${emailText.value}")
+        rootWidget.invalidate()
+    }
+    commentText.observe {
+        println("Comment typed: ${commentText.value}")
         rootWidget.invalidate()
     }
 

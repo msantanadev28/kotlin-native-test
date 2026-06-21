@@ -242,6 +242,9 @@ class KotlinCodeGen(
         val args = node.attributes.entries.joinToString(", ") { (k, v) ->
             if (k == "onClick") {
                 "$k = ::$v"
+            } else if (k == "bind") {
+                val clean = if (v.startsWith("{") && v.endsWith("}")) v.substring(1, v.length - 1) else v
+                "$k = $clean"
             } else if (v.startsWith("{") && v.endsWith("}")) {
                 "$k = ${v.substring(1, v.length - 1)}"
             } else {

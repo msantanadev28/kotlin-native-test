@@ -208,7 +208,26 @@ private fun windowProc(windowHandle: HWND?, message: UINT, wParam: WPARAM, lPara
             val root = renderer.rootWidget
             if (root != null) {
                 val target = lienzo.runtime.hitTest(root, x, y)
+                lienzo.runtime.requestFocus(target)
                 target?.handleEvent(lienzo.runtime.UiEvent.Click(x, y))
+            }
+            return 0
+        }
+
+        platform.windows.WM_KEYDOWN -> {
+            val focused = lienzo.runtime.focusedWidget
+            if (focused != null) {
+                val vk = wParam.toInt()
+                focused.handleEvent(lienzo.runtime.UiEvent.KeyDown(vk, null))
+            }
+            return 0
+        }
+
+        platform.windows.WM_CHAR -> {
+            val focused = lienzo.runtime.focusedWidget
+            if (focused != null) {
+                val charCode = wParam.toInt().toChar()
+                focused.handleEvent(lienzo.runtime.UiEvent.KeyDown(0, charCode))
             }
             return 0
         }

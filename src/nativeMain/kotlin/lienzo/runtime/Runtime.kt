@@ -42,7 +42,21 @@ interface DrawCanvas {
 sealed class UiEvent {
     data class Click(val x: Float, val y: Float) : UiEvent()
     data class MouseMove(val x: Float, val y: Float) : UiEvent()
+    data class KeyDown(val keyCode: Int, val char: Char?) : UiEvent()
+    data class KeyUp(val keyCode: Int) : UiEvent()
+    object Focus : UiEvent()
+    object Blur : UiEvent()
 }
+
+var focusedWidget: Widget? = null
+
+fun requestFocus(widget: Widget?) {
+    if (focusedWidget == widget) return
+    focusedWidget?.handleEvent(UiEvent.Blur)
+    focusedWidget = widget
+    focusedWidget?.handleEvent(UiEvent.Focus)
+}
+
 
 data class Size(val width: Float, val height: Float)
 
